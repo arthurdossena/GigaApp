@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import { Input } from "../components/Input";
@@ -10,7 +10,23 @@ export const AuthProviderList = (props: any): any => {
     const modalizeRef = useRef<Modalize>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [exercises, setExercises] = useState<string[]>([]);
+    const [exercises, setExercises] = useState([""]);
+
+    const handleAddExercise = () => {
+        setExercises([...exercises, ""]);
+    };
+
+    const handleExerciseChange = (text: string, index: number) => {
+        const updated = [...exercises];
+        updated[index] = text;
+        setExercises(updated);
+    };
+
+    const removeExercise = (index: number) => {
+        if (index === 0) return;
+        const updated = exercises.filter((_, i) => i !== index);
+        setExercises(updated);
+    };
     
     const onOpen = () => {
         modalizeRef?.current?.open();
@@ -23,15 +39,16 @@ export const AuthProviderList = (props: any): any => {
     const resetForm = () => {
         setTitle("");
         setDescription("");
-        setExercises([]);
-
-        Alert.alert("Form reset", "The form has been reset successfully.");
+        setExercises([""]);
     };
 
     const onSubmit = () => {
         if (!title.trim()) return Alert.alert("Please enter a title.");
         if (!description.trim()) return Alert.alert("Please enter a description.");
-        if (exercises.length === 0 || exercises[0] === "") return Alert.alert("Please add at least one exercise.");
+        if (exercises.length === 1 && exercises[0] === "") return Alert.alert("Please add at least one exercise.");
+        if (exercises.some(exercise => exercise.trim() === "")) {
+            return Alert.alert("Please fill in all exercise fields.");
+        }
 
         // Salvar e enviar ao backend
         Alert.alert("Success", "Routine saved!");
@@ -39,50 +56,73 @@ export const AuthProviderList = (props: any): any => {
         resetForm();
     };
 
-    useEffect(() => {
-        onOpen();
-    }, []);
+
+    // Abrir o modalize automaticamente ao carregar o componente
+    // useEffect(() => {
+    //     onOpen();
+    // }, []);
 
     const _container = () => {
         return (
-            <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        resetForm();
-                    }}>
-                        <MaterialIcons name="close" size={28}/>
-                    </TouchableOpacity>
-                    <Text style={styles.title}>Create workout routine</Text>
-                    <TouchableOpacity onPress={onSubmit}>
-                        <AntDesign name="check" size={28}/>
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.content}>
-                    <Input
-                        title="Title"
-                        labelStyle={styles.label}
-                        value={title}
-                        onChangeText={setTitle}
-                    />
-                    <Input
-                        title="Description"
-                        labelStyle={styles.label}
-                        height={80}
-                        multiline={true}
-                        numberOfLines={3}
-                        textAlignVertical="top"
-                        value={description}
-                        onChangeText={setDescription}                        
-                    />
-                    <View style={{width: "85%" }}>
-                        <Input
-                            title="Exercises"
-                            labelStyle={styles.label}
-                            value={exercises.join(", ")}
-                            onChangeText={(text) => setExercises(text.split(",").map(item => item.trim()))}
-                        />
-                    </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={100}
+            >
+                <View style={styles.container}>
+                    <ScrollView
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        <View style={styles.content}>
+                            <Input
+                                title="Title"
+                                labelStyle={styles.label}
+                                value={title}
+                                onChangeText={setTitle}
+                            />
+                            <Input
+                                title="Description"
+                                labelStyle={styles.label}
+                                height={80}
+                                multiline={true}
+                                numberOfLines={3}
+                                textAlignVertical="top"
+                                value={description}
+                                onChangeText={setDescription}                        
+                            />
+                            {exercises.map((exercise, index) => (
+                                <View key={index} style={{ width: "100%", marginBottom: 5, flexDirection: "row", paddingBottom: 0 }}>
+                                    <View style={{width: "90%"}}>
+                                        <Input
+                                            title={`Exercise ${index + 1}`}
+                                            labelStyle={styles.label}
+                                            value={exercise}
+                                            onChangeText={(text) => handleExerciseChange(text, index)}
+                                        />
+                                    </View>
+                                    <View key={index} style={{ width: "10%", justifyContent: "flex-end", alignItems: "center", paddingBottom: 10 }}>
+                                        {index > 0 && (
+                                            <TouchableOpacity onPress={() => removeExercise(index)}>
+                                                <AntDesign name="closecircleo" size={20} color={"red"} />
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
+                                </View>
+                            ))}
+                            <TouchableOpacity
+                                onPress={handleAddExercise}
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginVertical: 10,
+                                }}
+                            >
+                                <AntDesign name="pluscircleo" size={20} />
+                                <Text style={{ marginLeft: 8 }}>Add Exercise</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </ScrollView>
                 </View>
             </KeyboardAvoidingView>
         )
@@ -93,8 +133,24 @@ export const AuthProviderList = (props: any): any => {
             {props.children}
             <Modalize
                 ref={modalizeRef}
-                childrenStyle={{height: Dimensions.get("window").height * 0.85}}
                 adjustToContentHeight={true}
+                scrollViewProps={{
+                    keyboardShouldPersistTaps: "handled"
+                }}
+                HeaderComponent={
+                    <View style={styles.header}>
+                    <TouchableOpacity onPress={() => {
+                        onClose();
+                        resetForm();
+                    }}>
+                        <MaterialIcons name="close" size={28}/>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Create workout routine</Text>
+                    <TouchableOpacity onPress={onSubmit}>
+                        <AntDesign name="check" size={28}/>
+                    </TouchableOpacity>
+                    </View>
+                }
             >
                 {_container()}
             </Modalize>

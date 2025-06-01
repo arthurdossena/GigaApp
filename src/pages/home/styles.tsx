@@ -21,7 +21,6 @@ export const style = StyleSheet.create({
     boxInput: {
         width: "80%",
         marginTop: 10
-        // justifyContent: "flex-start",
     },
     boxList: {
         flex: 1,

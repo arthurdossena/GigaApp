@@ -15,6 +15,7 @@ export const style = StyleSheet.create({
         backgroundColor: themes.colors.secondary,
         justifyContent: "center",
         alignItems: "center",
+        paddingTop: 40,
     },
     boxMid: {
         width: "100%",

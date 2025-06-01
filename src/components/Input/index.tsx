@@ -29,7 +29,7 @@ export const Input = forwardRef((Props:Props, ref:Ref<TextInput> | null) => {
         if(IconLeft && IconRight) {
             return "80%";
         }else if(IconLeft || IconRight) {
-            return "90%";
+            return "85%";
         }else {
             return "100%";
         }
@@ -41,7 +41,7 @@ export const Input = forwardRef((Props:Props, ref:Ref<TextInput> | null) => {
         }else if(IconLeft || IconRight) {
             return 12;
         }else {
-            return 20;
+            return 15;
         }
     }
 

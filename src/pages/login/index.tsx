@@ -31,7 +31,7 @@ export default function Login()
         try {
             setLoading(true);
             if(!email || !password) {
-                return Alert.alert("Login", "Preencha todos os campos.");
+                return Alert.alert("Login", "Please fill in all fields.");
             }
 
             navigation.reset({routes:[{name:"BottomRoutes"}]});
@@ -51,22 +51,19 @@ export default function Login()
                     style={style.logo}
                     resizeMode="contain"
                     />
-                <Text style={style.text}>
-                    Login
-                </Text>
             </View>
             <View style={style.boxMid}>
                 <Input
                     onChangeText={setEmail}
                     value={email}
-                    title="Endereço de e-mail"
+                    title="Email"
                     IconRight={MaterialIcons}
                     iconRightName="email"
                 />
                 <Input
                     onChangeText={setPassword}
                     value={password}
-                    title="Senha"
+                    title="Password"
                     IconRight={Octicons}
                     iconRightName={showPassword ? "eye-closed" : "eye"}
                     secureTextEntry={showPassword}
@@ -74,9 +71,14 @@ export default function Login()
                 />
             </View>
             <View style={style.boxBottom}>
-                <Button text={"Entrar"} loading={loading} onPress={()=>getLogin()}/>
+                <Button text={"Login"} loading={loading} onPress={()=>getLogin()}/>
             </View>
-            <Text style={style.textBottom}>Não possui conta? <Text style={{color: themes.colors.primary}}>Crie sua conta.</Text></Text>
+            <View style={{ flexDirection: "row" }}>
+                <Text style={style.textBottom}>Don't have an account?</Text>
+                <TouchableOpacity>
+                    <Text style={{color: themes.colors.primary}}> Sign up.</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
