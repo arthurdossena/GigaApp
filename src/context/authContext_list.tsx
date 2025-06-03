@@ -11,6 +11,15 @@ export const AuthProviderList = (props: any): any => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [exercises, setExercises] = useState([""]);
+    const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
+
+    const handleLayout = (event: any) => {
+        event.persist();
+        const { height } = event.nativeEvent.layout;
+        if (exerciseItemHeight === 0) {
+            setExerciseItemHeight(height);
+        }
+    };
 
     const handleAddExercise = () => {
         setExercises([...exercises, ""]);
@@ -56,11 +65,10 @@ export const AuthProviderList = (props: any): any => {
         resetForm();
     };
 
-
     // Abrir o modalize automaticamente ao carregar o componente
-    // useEffect(() => {
-    //     onOpen();
-    // }, []);
+    useEffect(() => {
+        onOpen();
+    }, []);
 
     const _container = () => {
         return (
@@ -73,7 +81,13 @@ export const AuthProviderList = (props: any): any => {
                     <ScrollView
                         keyboardShouldPersistTaps="handled"
                     >
-                        <View style={styles.content}>
+                        <View style={[
+                            styles.content,
+                            exercises.length > 3 && {
+                            height:
+                                Dimensions.get("window").height * 0.85 + (exercises.length - 3) * (exerciseItemHeight+10),
+                            } || { height: Dimensions.get("window").height * 0.85 },
+                        ]}>
                             <Input
                                 title="Title"
                                 labelStyle={styles.label}
@@ -91,7 +105,10 @@ export const AuthProviderList = (props: any): any => {
                                 onChangeText={setDescription}                        
                             />
                             {exercises.map((exercise, index) => (
-                                <View key={index} style={{ width: "100%", marginBottom: 5, flexDirection: "row", paddingBottom: 0 }}>
+                                <View
+                                    key={index}
+                                    style={{ width: "100%", marginBottom: 5, flexDirection: "row" }}
+                                    onLayout={index === 0 ? handleLayout : undefined}>
                                     <View style={{width: "90%"}}>
                                         <Input
                                             title={`Exercise ${index + 1}`}
@@ -133,8 +150,9 @@ export const AuthProviderList = (props: any): any => {
             {props.children}
             <Modalize
                 ref={modalizeRef}
-                adjustToContentHeight={true}
+                adjustToContentHeight={false}
                 scrollViewProps={{
+                    //contentContainerStyle: { paddingBottom: 100 },
                     keyboardShouldPersistTaps: "handled"
                 }}
                 HeaderComponent={
@@ -179,7 +197,7 @@ export const styles = StyleSheet.create({
     },
     content: {
         width: "100%",
-        height: Dimensions.get("window").height * 0.85,
+        //height: Dimensions.get("window").height * 0.85,
         paddingHorizontal: 20,
         paddingTop: 20,
     },
