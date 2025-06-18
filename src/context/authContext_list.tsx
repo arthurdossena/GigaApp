@@ -3,6 +3,7 @@ import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAv
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import { Input } from "../components/Input";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AuthContextList:any = createContext({});
 
@@ -12,6 +13,7 @@ export const AuthProviderList = (props: any): any => {
     const [description, setDescription] = useState("");
     const [exercises, setExercises] = useState([""]);
     const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
+    const [routineList, setRoutineList] = useState<any[]>([]);
 
     const handleLayout = (event: any) => {
         event.persist();
@@ -51,23 +53,53 @@ export const AuthProviderList = (props: any): any => {
         setExercises([""]);
     };
 
-    const onSubmit = () => {
+    const handleSave = async() => {
         if (!title.trim()) return Alert.alert("Please enter a title.");
         if (!description.trim()) return Alert.alert("Please enter a description.");
         if (exercises.length === 1 && exercises[0] === "") return Alert.alert("Please add at least one exercise.");
         if (exercises.some(exercise => exercise.trim() === "")) {
             return Alert.alert("Please fill in all exercise fields.");
         }
-
+        //await AsyncStorage.removeItem("routineList");
         // Salvar e enviar ao backend
-        Alert.alert("Success", "Routine saved!");
-        onClose();
-        resetForm();
+        try {
+            const storageData = await AsyncStorage.getItem("routineList");
+            
+            let routineList = storageData ? JSON.parse(storageData) : [];
+            if (!Array.isArray(routineList)) {
+                routineList = [];
+            }
+            routineList.push({ title, description, exercises });
+            
+            await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
+
+            setRoutineList(routineList);
+
+            console.log("Routine saved:", routineList);
+    
+            Alert.alert("Success", "Routine saved!");
+            onClose();
+            resetForm();
+        } catch (error) {
+            console.error("Error saving routine:", error);
+        }
     };
 
-    // Abrir o modalize automaticamente ao carregar o componente
+    async function getRoutineList() {
+        try {
+            const storageData = await AsyncStorage.getItem("routineList");
+            let routineList = storageData ? JSON.parse(storageData) : [];
+            if (!Array.isArray(routineList)) {
+                routineList = [];
+            }
+            setRoutineList(routineList);
+        } catch (error) {
+            console.error("Error fetching routine list:", error);
+        }
+    }
+
     useEffect(() => {
-        onOpen();
+        getRoutineList();
     }, []);
 
     const _container = () => {
@@ -75,18 +107,19 @@ export const AuthProviderList = (props: any): any => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={{ flex: 1 }}
-                keyboardVerticalOffset={100}
+                keyboardVerticalOffset={0}
             >
                 <View style={styles.container}>
                     <ScrollView
                         keyboardShouldPersistTaps="handled"
+                        contentContainerStyle={{ paddingTop:2, paddingBottom: 2, justifyContent: "center", alignItems: "center" }}
                     >
                         <View style={[
                             styles.content,
                             exercises.length > 3 && {
                             height:
-                                Dimensions.get("window").height * 0.85 + (exercises.length - 3) * (exerciseItemHeight+10),
-                            } || { height: Dimensions.get("window").height * 0.85 },
+                                Dimensions.get("window").height * 0.8 + (exercises.length - 3) * (80+10),
+                            } || { height: Dimensions.get("window").height * 0.8 },
                         ]}>
                             <Input
                                 title="Title"
@@ -107,8 +140,9 @@ export const AuthProviderList = (props: any): any => {
                             {exercises.map((exercise, index) => (
                                 <View
                                     key={index}
-                                    style={{ width: "100%", marginBottom: 5, flexDirection: "row" }}
-                                    onLayout={index === 0 ? handleLayout : undefined}>
+                                    style={{ width: "100%", marginBottom: 0, flexDirection: "row" }}
+                                    //onLayout={index === 0 ? handleLayout : undefined}
+                                    >
                                     <View style={{width: "90%"}}>
                                         <Input
                                             title={`Exercise ${index + 1}`}
@@ -146,11 +180,12 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen}}>
+        <AuthContextList.Provider value={{onOpen, routineList}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}
-                adjustToContentHeight={false}
+                adjustToContentHeight={true}
+                modalStyle={styles.container}
                 scrollViewProps={{
                     //contentContainerStyle: { paddingBottom: 100 },
                     keyboardShouldPersistTaps: "handled"
@@ -164,7 +199,7 @@ export const AuthProviderList = (props: any): any => {
                         <MaterialIcons name="close" size={28}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Create workout routine</Text>
-                    <TouchableOpacity onPress={onSubmit}>
+                    <TouchableOpacity onPress={handleSave}>
                         <AntDesign name="check" size={28}/>
                     </TouchableOpacity>
                     </View>
@@ -196,10 +231,10 @@ export const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     content: {
-        width: "100%",
+        width: "98%",
         //height: Dimensions.get("window").height * 0.85,
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 10,
     },
     label: {
         fontSize: 16,

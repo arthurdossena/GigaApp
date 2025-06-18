@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext} from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { style } from '../home/styles';
 import { Input } from '../../components/Input';
 import { FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes';
+import { AuthContextList } from '../../context/authContext_list';
+import { AuthContextType } from '../../global/Props';
 
 type PropCard = {
   id: number;
@@ -13,28 +15,9 @@ type PropCard = {
   exercises: string[];
 }
 
-const data:Array<PropCard> = [
-  {
-    id: 1,
-    title: "Treino de peito",
-    description: "Treino de peito com halteres",
-    exercises: ["ex1", "ex2", "ex3"],
-  },
-  {
-    id: 2,
-    title: "Treino de costas",
-    description: "Treino de costas com barra",
-    exercises: ["ex2", "ex4", "ex5"],
-  },
-  {
-    id: 3,
-    title: "Treino de pernas",
-    description: "Treino de pernas com agachamento",
-    exercises: ["ex1", "ex3", "ex4"],
-  },
-]
-
 export default function Home() {
+
+  const {routineList} = useContext<AuthContextType>(AuthContextList);
 
   const _renderCard = (item: PropCard) => {
     return (
@@ -70,9 +53,9 @@ export default function Home() {
       </View>
       <View style={style.boxList}>
         <FlatList
-          data={data}
+          data={routineList}
           style={{marginTop:10,paddingHorizontal: 20}}
-          keyExtractor={(item) => String(item.id)}
+          keyExtractor={(item, index) => item.id? String(item.id) : String(index)}
           renderItem={({ item }) => {return (_renderCard(item))}}
         />
       </View>
