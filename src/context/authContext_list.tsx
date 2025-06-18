@@ -4,6 +4,7 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import { Input } from "../components/Input";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PropCard } from "../global/Props";
 
 export const AuthContextList:any = createContext({});
 
@@ -12,8 +13,10 @@ export const AuthProviderList = (props: any): any => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [exercises, setExercises] = useState([""]);
+    const [id, setId] = useState(0);
     const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
     const [routineList, setRoutineList] = useState<any[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleLayout = (event: any) => {
         event.persist();
@@ -51,6 +54,7 @@ export const AuthProviderList = (props: any): any => {
         setTitle("");
         setDescription("");
         setExercises([""]);
+        setId(0);
     };
 
     const handleSave = async() => {
@@ -63,16 +67,25 @@ export const AuthProviderList = (props: any): any => {
 
         // Salvar e enviar ao backend
         try {
-            const storageData = await AsyncStorage.getItem("routineList");
-            
-            let routineList = storageData ? JSON.parse(storageData) : [];
-            if (!Array.isArray(routineList)) {
-                routineList = [];
+            const newItem = {
+                id: id !== 0 ? id : Date.now(),
+                title,
+                description,
+                exercises
             }
-            routineList.push({ id: Date.now(), title, description, exercises });
-            
-            await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
 
+            const storageData = await AsyncStorage.getItem("routineList");
+            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+
+            const itemIndex = routineList.findIndex((routine)=>routine.id === newItem.id);
+
+            if(itemIndex >= 0) {
+                routineList[itemIndex] = newItem;
+            } else {
+                routineList.push(newItem);
+            }
+
+            await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
             setRoutineList(routineList);
 
             console.log("Routine saved:", routineList);
@@ -88,32 +101,48 @@ export const AuthProviderList = (props: any): any => {
     async function getRoutineList() {
         try {
             const storageData = await AsyncStorage.getItem("routineList");
-            let routineList = storageData ? JSON.parse(storageData) : [];
-            if (!Array.isArray(routineList)) {
-                routineList = [];
-            }
+            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
             setRoutineList(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
         }
     }
-
-    const handleDelete = async (itemToDelete: any) => {
+    
+    const handleDelete = async (itemToDelete: PropCard) => {
         try {
             const storageData = await AsyncStorage.getItem("routineList");
-            let routineList = storageData ? JSON.parse(storageData) : [];
-            if (!Array.isArray(routineList)) {
-                routineList = [];
-            }
-
+            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+            
             const updatedList = routineList.filter((item: { id: number; }) => item.id !== itemToDelete.id);
-
+            
             await AsyncStorage.setItem("routineList", JSON.stringify(updatedList));
             setRoutineList(updatedList);
         } catch (error) {
             console.error("Error deleting routine:", error);            
         }
     }
+    
+    const handleEdit = async (itemToEdit: PropCard) => {
+        try {
+            setIsEditing(true);
+
+            setTitle(itemToEdit.title);
+            setDescription(itemToEdit.description);
+            setExercises(itemToEdit.exercises);
+            setId(itemToEdit.id);
+            
+            onOpen();
+        } catch (error) {
+            console.error("Error editing routine:", error);
+        }
+    }
+
+    const handleCloseModal = () => {
+        if (isEditing) {
+            resetForm(); // your form reset logic
+            setIsEditing(false);
+        }
+    };
 
     useEffect(() => {
         getRoutineList();
@@ -197,10 +226,11 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}
+                onClose={handleCloseModal}
                 adjustToContentHeight={true}
                 modalStyle={styles.container}
                 scrollViewProps={{

@@ -1,7 +1,7 @@
 export interface AuthContextType {
     routineList:Array<PropCard>,
     onOpen: void,
-    // handleEdit: Function,
+    handleEdit: Function,
     handleDelete: Function,
 }
 

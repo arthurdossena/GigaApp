@@ -10,11 +10,11 @@ import { AuthContextType, PropCard } from '../../global/Props';
 
 export default function Home() {
 
-  const {routineList, handleDelete} = useContext<AuthContextType>(AuthContextList);
+  const {routineList, handleDelete, handleEdit} = useContext<AuthContextType>(AuthContextList);
 
   const _renderCard = (item: PropCard) => {
     return (
-      <TouchableOpacity style={style.card} activeOpacity={0.4}>
+      <TouchableOpacity style={style.card} activeOpacity={0.4} onPress={() => handleEdit(item)}>
         <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
           <TouchableOpacity style={style.buttonPlay} activeOpacity={0.4}>
               <Entypo name="controller-play" size={20} color="white" />
