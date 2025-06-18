@@ -60,7 +60,7 @@ export const AuthProviderList = (props: any): any => {
         if (exercises.some(exercise => exercise.trim() === "")) {
             return Alert.alert("Please fill in all exercise fields.");
         }
-        //await AsyncStorage.removeItem("routineList");
+
         // Salvar e enviar ao backend
         try {
             const storageData = await AsyncStorage.getItem("routineList");
@@ -69,7 +69,7 @@ export const AuthProviderList = (props: any): any => {
             if (!Array.isArray(routineList)) {
                 routineList = [];
             }
-            routineList.push({ title, description, exercises });
+            routineList.push({ id: Date.now(), title, description, exercises });
             
             await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
 
@@ -95,6 +95,23 @@ export const AuthProviderList = (props: any): any => {
             setRoutineList(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
+        }
+    }
+
+    const handleDelete = async (itemToDelete: any) => {
+        try {
+            const storageData = await AsyncStorage.getItem("routineList");
+            let routineList = storageData ? JSON.parse(storageData) : [];
+            if (!Array.isArray(routineList)) {
+                routineList = [];
+            }
+
+            const updatedList = routineList.filter((item: { id: number; }) => item.id !== itemToDelete.id);
+
+            await AsyncStorage.setItem("routineList", JSON.stringify(updatedList));
+            setRoutineList(updatedList);
+        } catch (error) {
+            console.error("Error deleting routine:", error);            
         }
     }
 
@@ -180,7 +197,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}

@@ -46,4 +46,21 @@ export const style = StyleSheet.create({
         fontSize: 12,
         color: 'gray',
     },
+    buttonRemove: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: themes.colors.white,
+    },
+    buttonPlay: {
+        width: 35,
+        height: 35,
+        backgroundColor: themes.colors.primary,
+        borderRadius: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingLeft: 2,
+    },
 });

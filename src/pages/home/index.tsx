@@ -6,33 +6,29 @@ import { FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes';
 import { AuthContextList } from '../../context/authContext_list';
-import { AuthContextType } from '../../global/Props';
-
-type PropCard = {
-  id: number;
-  title: string;
-  description: string;
-  exercises: string[];
-}
+import { AuthContextType, PropCard } from '../../global/Props';
 
 export default function Home() {
 
-  const {routineList} = useContext<AuthContextType>(AuthContextList);
+  const {routineList, handleDelete} = useContext<AuthContextType>(AuthContextList);
 
   const _renderCard = (item: PropCard) => {
     return (
       <TouchableOpacity style={style.card} activeOpacity={0.4}>
         <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
-          <TouchableOpacity>
-            <View style={{width: 35, height: 35, backgroundColor: themes.colors.primary, borderRadius: 30, justifyContent: 'center', alignItems: 'center', paddingLeft:2}}>
+          <TouchableOpacity style={style.buttonPlay} activeOpacity={0.4}>
               <Entypo name="controller-play" size={20} color="white" />
-            </View>
           </TouchableOpacity>
         </View>
         <View style={{ marginLeft: 10, justifyContent: "flex-start", alignItems: "flex-start", flex: 1, backgroundColor: "white" }}>
           <Text style={style.titleCard}>{item.title}</Text>
           <Text style={style.descriptionCard}>{item.description}</Text>
           <Text style={style.exercisesCard}>{item.exercises.join(', ')}</Text>
+        </View>
+        <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
+          <TouchableOpacity style={style.buttonRemove} activeOpacity={0.4} onPress={() => handleDelete(item)}>
+            <FontAwesome5 name="trash-alt" size={14} color={themes.colors.primary} />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     )
