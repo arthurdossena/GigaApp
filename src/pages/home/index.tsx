@@ -10,7 +10,7 @@ import { AuthContextType, PropCard } from '../../global/Props';
 
 export default function Home() {
 
-  const {routineList, handleDelete, handleEdit} = useContext<AuthContextType>(AuthContextList);
+  const {routineList, handleDelete, handleEdit, filter} = useContext<AuthContextType>(AuthContextList);
 
   const _renderCard = (item: PropCard) => {
     return (
@@ -44,6 +44,7 @@ export default function Home() {
             IconLeft={MaterialIcons}
             iconLeftName='search'
             backgroundColor='white'
+            onChangeText={(text) => filter(text)}
           />
         </View>
       </View>

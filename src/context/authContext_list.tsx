@@ -15,7 +15,8 @@ export const AuthProviderList = (props: any): any => {
     const [exercises, setExercises] = useState([""]);
     const [id, setId] = useState(0);
     const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
-    const [routineList, setRoutineList] = useState<any[]>([]);
+    const [routineList, setRoutineList] = useState<Array<PropCard>>([]);
+    const [routineListBackup, setRoutineListBackup] = useState<Array<PropCard>>([]);
     const [isEditing, setIsEditing] = useState(false);
 
     const handleLayout = (event: any) => {
@@ -87,6 +88,7 @@ export const AuthProviderList = (props: any): any => {
 
             await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
             setRoutineList(routineList);
+            setRoutineListBackup(routineList);
 
             console.log("Routine saved:", routineList);
     
@@ -103,6 +105,7 @@ export const AuthProviderList = (props: any): any => {
             const storageData = await AsyncStorage.getItem("routineList");
             let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
             setRoutineList(routineList);
+            setRoutineListBackup(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
         }
@@ -117,6 +120,7 @@ export const AuthProviderList = (props: any): any => {
             
             await AsyncStorage.setItem("routineList", JSON.stringify(updatedList));
             setRoutineList(updatedList);
+            setRoutineListBackup(updatedList);
         } catch (error) {
             console.error("Error deleting routine:", error);            
         }
@@ -135,6 +139,29 @@ export const AuthProviderList = (props: any): any => {
         } catch (error) {
             console.error("Error editing routine:", error);
         }
+    }
+
+    const filter =  (text: string) => {
+        if(routineListBackup.length === 0) return;
+
+        const array = routineListBackup;
+        const fields = ["title", "description"];
+
+        if(text){
+            const searchTerm = text.trim().toLowerCase();
+
+            const filteredArray = array.filter((item: any) => {
+                for(let i=0; i<fields.length; i++) {
+                    if(item[fields[i]].trim().toLowerCase().includes(searchTerm)) {
+                        return true;
+                    }
+            }})
+
+            setRoutineList(filteredArray);
+        } else {
+            setRoutineList(array);
+        }
+
     }
 
     const handleCloseModal = () => {
@@ -226,7 +253,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}

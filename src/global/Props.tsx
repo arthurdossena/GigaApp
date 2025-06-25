@@ -3,6 +3,7 @@ export interface AuthContextType {
     onOpen: void,
     handleEdit: Function,
     handleDelete: Function,
+    filter: (text:string) => void,
 }
 
 export type PropCard = {
