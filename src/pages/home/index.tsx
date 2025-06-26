@@ -7,8 +7,11 @@ import { FlatList } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes';
 import { AuthContextList } from '../../context/authContext_list';
 import { AuthContextType, PropCard } from '../../global/Props';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 export default function Home() {
+
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const {routineList, handleDelete, handleEdit, filter} = useContext<AuthContextType>(AuthContextList);
 
@@ -16,7 +19,7 @@ export default function Home() {
     return (
       <TouchableOpacity style={style.card} activeOpacity={0.4} onPress={() => handleEdit(item)}>
         <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
-          <TouchableOpacity style={style.buttonPlay} activeOpacity={0.4}>
+          <TouchableOpacity style={style.buttonPlay} activeOpacity={0.4} onPress={() => navigation.navigate("Routine", {item})}>
               <Entypo name="controller-play" size={20} color="white" />
           </TouchableOpacity>
         </View>

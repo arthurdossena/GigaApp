@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../pages/login';
 import BottomRoutes from './bottom.routes';
+import Routine from '../pages/routine';
 import Home from '../pages/home';
 import User from '../pages/user';
 
@@ -21,6 +22,7 @@ export default function Routes() {
 
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="BottomRoutes" component={BottomRoutes} />
+            <Stack.Screen name="Routine" component={Routine} />
 
         </Stack.Navigator>
     );
