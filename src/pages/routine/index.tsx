@@ -1,17 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styles } from './styles';
 import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { Text, View, Alert, TouchableOpacity } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, TextInput } from 'react-native-gesture-handler';
 
 export default function Routine() {
     const navigation = useNavigation<NavigationProp<any>>();
-
     const route = useRoute();
     const item:any = route.params;
-    //console.log(item);
 
-    const _renderExercise = ({item}: {item:Array<String>}) => (
+    const [inputs, setInputs] = useState<{ kg: string[]; reps: string[] }>({
+        kg: Array(item.item.exercises.length).fill(''),
+        reps: Array(item.item.exercises.length).fill(''),
+    });
+
+    const handleInputChange = (
+        type: 'kg' | 'reps',
+        index: number,
+        value: string
+    ) => {
+        const newValues = [...inputs[type]];
+        newValues[index] = value.replace(/[^0-9]/g, '');
+        setInputs({ ...inputs, [type]: newValues });
+    };
+
+    const _renderExercise = ({item, index}: {item:string, index:number}) => (
         <View style={{paddingBottom:40}}>
             <Text style={styles.exerciseTitle}>{item}</Text>
             <View style={styles.tableHeader}>
@@ -19,6 +32,22 @@ export default function Routine() {
                 <Text style={styles.tableHeaderText}>Kg</Text>
                 <Text style={styles.tableHeaderText}>Reps</Text>
             </View>
+            <View style={styles.tableHeader}>
+                <Text style={styles.tableHeaderText}>1</Text>
+                <TextInput
+                    style={{}}
+                    keyboardType="numeric"
+                    inputMode="numeric"
+                />
+                <TextInput
+                    style={styles.tableHeaderText}
+                    keyboardType="numeric"
+                    inputMode="numeric"
+                    value={inputs.reps[index]}
+                    onChangeText={text => handleInputChange('reps', index, text)}
+                />
+            </View>
+            
         </View>
     )
 
