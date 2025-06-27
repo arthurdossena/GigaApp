@@ -13,6 +13,7 @@ export const AuthProviderList = (props: any): any => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [exercises, setExercises] = useState([""]);
+    const [sets, setSets] = useState([""]);
     const [id, setId] = useState(0);
     const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
     const [routineList, setRoutineList] = useState<Array<PropCard>>([]);
@@ -29,6 +30,7 @@ export const AuthProviderList = (props: any): any => {
 
     const handleAddExercise = () => {
         setExercises([...exercises, ""]);
+        setSets([...sets, ""]);
     };
 
     const handleExerciseChange = (text: string, index: number) => {
@@ -37,10 +39,18 @@ export const AuthProviderList = (props: any): any => {
         setExercises(updated);
     };
 
+    const handleSetChange = (text: string, index: number) => {
+        const updated = [...sets];
+        updated[index] = text.replace(/[^0-9]/g, '');
+        setSets(updated);
+    };
+
     const removeExercise = (index: number) => {
         if (index === 0) return;
-        const updated = exercises.filter((_, i) => i !== index);
-        setExercises(updated);
+        const updatedExercises = exercises.filter((_, i) => i !== index);
+        const updatedSets = sets.filter((_, i) => i !== index);
+        setExercises(updatedExercises);
+        setSets(updatedSets);
     };
     
     const onOpen = () => {
@@ -55,15 +65,19 @@ export const AuthProviderList = (props: any): any => {
         setTitle("");
         setDescription("");
         setExercises([""]);
+        setSets([""]);
         setId(0);
     };
 
     const handleSave = async() => {
         if (!title.trim()) return Alert.alert("Please enter a title.");
-        if (!description.trim()) return Alert.alert("Please enter a description.");
+        //if (!description.trim()) return Alert.alert("Please enter a description.");
         if (exercises.length === 1 && exercises[0] === "") return Alert.alert("Please add at least one exercise.");
         if (exercises.some(exercise => exercise.trim() === "")) {
             return Alert.alert("Please fill in all exercise fields.");
+        }
+        if (sets.some(set => !set.trim() || isNaN(Number(set)) || Number(set) <= 0)) {
+            return Alert.alert("Please fill in all sets fields with numbers greater than 0.");
         }
 
         // Salvar e enviar ao backend
@@ -72,7 +86,8 @@ export const AuthProviderList = (props: any): any => {
                 id: id !== 0 ? id : Date.now(),
                 title,
                 description,
-                exercises
+                exercises,
+                sets
             }
 
             const storageData = await AsyncStorage.getItem("routineList");
@@ -133,6 +148,7 @@ export const AuthProviderList = (props: any): any => {
             setTitle(itemToEdit.title);
             setDescription(itemToEdit.description);
             setExercises(itemToEdit.exercises);
+            setSets(itemToEdit.sets)
             setId(itemToEdit.id);
             
             onOpen();
@@ -213,10 +229,10 @@ export const AuthProviderList = (props: any): any => {
                             {exercises.map((exercise, index) => (
                                 <View
                                     key={index}
-                                    style={{ width: "100%", marginBottom: 0, flexDirection: "row" }}
+                                    style={{ width: "100%", marginBottom: 0, flexDirection: "row"}}
                                     //onLayout={index === 0 ? handleLayout : undefined}
                                     >
-                                    <View style={{width: "90%"}}>
+                                    <View style={{width: "60%"}}>
                                         <Input
                                             title={`Exercise ${index + 1}`}
                                             labelStyle={styles.label}
@@ -224,7 +240,18 @@ export const AuthProviderList = (props: any): any => {
                                             onChangeText={(text) => handleExerciseChange(text, index)}
                                         />
                                     </View>
-                                    <View key={index} style={{ width: "10%", justifyContent: "flex-end", alignItems: "center", paddingBottom: 10 }}>
+                                    <View style={{justifyContent:"flex-end", marginBottom: 12, marginLeft: 10, marginRight: 5}}>
+                                        <Text style={{fontWeight: "bold"}}>Sets:</Text>
+                                    </View>
+                                    <View style={{width: "15%", justifyContent: "flex-end"}}>
+                                        <Input
+                                            value={sets[index]}
+                                            keyboardType="numeric"
+                                            textAlign="center"
+                                            onChangeText={(text) => handleSetChange(text, index)}
+                                        />
+                                    </View>
+                                    <View key={index} style={{ width: "10%", justifyContent: "flex-end", alignItems: "center", paddingBottom: 10, marginLeft:3 }}>
                                         {index > 0 && (
                                             <TouchableOpacity onPress={() => removeExercise(index)}>
                                                 <AntDesign name="closecircleo" size={20} color={"red"} />

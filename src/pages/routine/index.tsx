@@ -14,11 +14,7 @@ export default function Routine() {
         reps: Array(item.item.exercises.length).fill(''),
     });
 
-    const handleInputChange = (
-        type: 'kg' | 'reps',
-        index: number,
-        value: string
-    ) => {
+    const handleInputChange = (type: 'kg' | 'reps', index: number, value: string) => {
         const newValues = [...inputs[type]];
         newValues[index] = value.replace(/[^0-9]/g, '');
         setInputs({ ...inputs, [type]: newValues });
@@ -32,15 +28,15 @@ export default function Routine() {
                 <Text style={styles.tableHeaderText}>Kg</Text>
                 <Text style={styles.tableHeaderText}>Reps</Text>
             </View>
-            <View style={styles.tableHeader}>
-                <Text style={styles.tableHeaderText}>1</Text>
+            <View style={[styles.tableHeader, {paddingHorizontal:10}]}>
+                <Text style={[styles.tableHeaderText, {backgroundColor: "red"}]}>1</Text>
                 <TextInput
-                    style={{}}
+                    style={[styles.tableHeaderText, {backgroundColor: "green"}]}
                     keyboardType="numeric"
                     inputMode="numeric"
                 />
                 <TextInput
-                    style={styles.tableHeaderText}
+                    style={[styles.tableHeaderText, {backgroundColor: "blue"}]}
                     keyboardType="numeric"
                     inputMode="numeric"
                     value={inputs.reps[index]}

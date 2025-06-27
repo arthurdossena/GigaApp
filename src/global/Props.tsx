@@ -11,4 +11,5 @@ export type PropCard = {
     title: string,
     description: string,
     exercises: string[],
+    sets: string[]
 }
