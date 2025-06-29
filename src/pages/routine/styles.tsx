@@ -4,7 +4,7 @@ import { themes } from "../../global/themes";
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: themes.colors.background,
+        backgroundColor: themes.colors.white,
         alignItems: "center",
         justifyContent: "flex-start",
         paddingHorizontal: 10,
@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
     tableHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
+        alignContent: "space-between",
         width: "100%",
         paddingVertical: 10,
         borderBottomWidth: 1,

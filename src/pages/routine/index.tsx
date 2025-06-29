@@ -3,6 +3,7 @@ import { styles } from './styles';
 import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { Text, View, Alert, TouchableOpacity } from 'react-native';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
+import { themes } from '../../global/themes';
 
 export default function Routine() {
     const navigation = useNavigation<NavigationProp<any>>();
@@ -20,29 +21,35 @@ export default function Routine() {
         setInputs({ ...inputs, [type]: newValues });
     };
 
-    const _renderExercise = ({item, index}: {item:string, index:number}) => (
+    const _renderExercise = ({item, index}: {item: { name: string; sets: number }, index:number}) => (
         <View style={{paddingBottom:40}}>
-            <Text style={styles.exerciseTitle}>{item}</Text>
+            <Text style={styles.exerciseTitle}>{item.name}</Text>
             <View style={styles.tableHeader}>
                 <Text style={styles.tableHeaderText}>Sets</Text>
                 <Text style={styles.tableHeaderText}>Kg</Text>
                 <Text style={styles.tableHeaderText}>Reps</Text>
             </View>
-            <View style={[styles.tableHeader, {paddingHorizontal:10}]}>
-                <Text style={[styles.tableHeaderText, {backgroundColor: "red"}]}>1</Text>
-                <TextInput
-                    style={[styles.tableHeaderText, {backgroundColor: "green"}]}
-                    keyboardType="numeric"
-                    inputMode="numeric"
-                />
-                <TextInput
-                    style={[styles.tableHeaderText, {backgroundColor: "blue"}]}
-                    keyboardType="numeric"
-                    inputMode="numeric"
-                    value={inputs.reps[index]}
-                    onChangeText={text => handleInputChange('reps', index, text)}
-                />
-            </View>
+            {Array.from({ length: item.sets }).map((_, setIndex) => (
+                <View key={`${item.name}-${setIndex}`} style={[styles.tableHeader, {paddingHorizontal:10, backgroundColor: themes.colors.background}]}>
+                    <Text style={[styles.tableHeaderText, {width:40, textAlign: "left"}]}>{String(setIndex+1)}</Text>
+                    <View style={[{width:40}]}>
+                        <TextInput
+                            style={[styles.tableHeaderText, {textAlign: "center"}]}
+                            keyboardType="numeric"
+                            inputMode="numeric"
+                        />
+                    </View>
+                    <View style={{width:40}}>
+                        <TextInput
+                            style={[styles.tableHeaderText, {textAlign: "right"}]}
+                            keyboardType="numeric"
+                            inputMode="numeric"
+                            // value={inputs.reps[index]}
+                            // onChangeText={text => handleInputChange('reps', index, text)}
+                        />
+                    </View>
+                </View>
+            ))}
             
         </View>
     )

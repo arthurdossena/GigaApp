@@ -12,8 +12,7 @@ export const AuthProviderList = (props: any): any => {
     const modalizeRef = useRef<Modalize>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [exercises, setExercises] = useState([""]);
-    const [sets, setSets] = useState([""]);
+    const [exerciseInputs, setExerciseInputs] = useState<Array<{ name: string; sets: string }>>([{ name: "", sets: "" }]);
     const [id, setId] = useState(0);
     const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
     const [routineList, setRoutineList] = useState<Array<PropCard>>([]);
@@ -29,28 +28,25 @@ export const AuthProviderList = (props: any): any => {
     };
 
     const handleAddExercise = () => {
-        setExercises([...exercises, ""]);
-        setSets([...sets, ""]);
+        setExerciseInputs([...exerciseInputs, { name: "", sets: "" }]);
     };
 
     const handleExerciseChange = (text: string, index: number) => {
-        const updated = [...exercises];
-        updated[index] = text;
-        setExercises(updated);
+        const updated = [...exerciseInputs];
+        updated[index].name = text;
+        setExerciseInputs(updated);
     };
 
     const handleSetChange = (text: string, index: number) => {
-        const updated = [...sets];
-        updated[index] = text.replace(/[^0-9]/g, '');
-        setSets(updated);
+        const updated = [...exerciseInputs];
+        updated[index].sets = text.replace(/[^0-9]/g, '');
+        setExerciseInputs(updated);
     };
 
     const removeExercise = (index: number) => {
-        if (index === 0) return;
-        const updatedExercises = exercises.filter((_, i) => i !== index);
-        const updatedSets = sets.filter((_, i) => i !== index);
-        setExercises(updatedExercises);
-        setSets(updatedSets);
+        if (exerciseInputs.length === 1) return; // Prevent removing the last exercise
+        const updatedExerciseInputs = exerciseInputs.filter((_, i) => i !== index);
+        setExerciseInputs(updatedExerciseInputs);
     };
     
     const onOpen = () => {
@@ -64,31 +60,35 @@ export const AuthProviderList = (props: any): any => {
     const resetForm = () => {
         setTitle("");
         setDescription("");
-        setExercises([""]);
-        setSets([""]);
+        setExerciseInputs([{ name: "", sets: "" }]);
         setId(0);
     };
 
     const handleSave = async() => {
         if (!title.trim()) return Alert.alert("Please enter a title.");
         //if (!description.trim()) return Alert.alert("Please enter a description.");
-        if (exercises.length === 1 && exercises[0] === "") return Alert.alert("Please add at least one exercise.");
-        if (exercises.some(exercise => exercise.trim() === "")) {
+        const allExercisesValid = exerciseInputs.every(ex => ex.name.trim() !== "");
+        const allSetsValid = exerciseInputs.every(ex => ex.sets.trim() !== "" && !isNaN(Number(ex.sets)) && Number(ex.sets) > 0);
+        if (exerciseInputs.length === 1 && exerciseInputs[0].name === "" || exerciseInputs[0].sets === "")
+            return Alert.alert("Please add at least one exercise.");
+        if (exerciseInputs.some(exercise => exercise.name.trim() === ""))
             return Alert.alert("Please fill in all exercise fields.");
-        }
-        if (sets.some(set => !set.trim() || isNaN(Number(set)) || Number(set) <= 0)) {
+        if (exerciseInputs.some(exercise => !exercise.sets.trim() || isNaN(Number(exercise.sets)) || Number(exercise.sets) <= 0))
             return Alert.alert("Please fill in all sets fields with numbers greater than 0.");
-        }
 
         // Salvar e enviar ao backend
         try {
-            const newItem = {
+            const exercisesForPropCard = exerciseInputs.map(ex => ({
+                name: ex.name,
+                sets: Number(ex.sets)
+            }));
+
+            const newItem: PropCard = {
                 id: id !== 0 ? id : Date.now(),
                 title,
                 description,
-                exercises,
-                sets
-            }
+                exercises: exercisesForPropCard,
+            };
 
             const storageData = await AsyncStorage.getItem("routineList");
             let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
@@ -147,8 +147,11 @@ export const AuthProviderList = (props: any): any => {
 
             setTitle(itemToEdit.title);
             setDescription(itemToEdit.description);
-            setExercises(itemToEdit.exercises);
-            setSets(itemToEdit.sets)
+            const exercisesForInputState = itemToEdit.exercises.map(ex => ({
+                name: ex.name,
+                sets: String(ex.sets)
+            }));
+            setExerciseInputs(exercisesForInputState);
             setId(itemToEdit.id);
             
             onOpen();
@@ -205,9 +208,9 @@ export const AuthProviderList = (props: any): any => {
                     >
                         <View style={[
                             styles.content,
-                            exercises.length > 3 && {
+                            exerciseInputs.length > 3 && {
                             height:
-                                Dimensions.get("window").height * 0.8 + (exercises.length - 3) * (80+10),
+                                Dimensions.get("window").height * 0.8 + (exerciseInputs.length - 3) * (80+10),
                             } || { height: Dimensions.get("window").height * 0.8 },
                         ]}>
                             <Input
@@ -226,7 +229,7 @@ export const AuthProviderList = (props: any): any => {
                                 value={description}
                                 onChangeText={setDescription}                        
                             />
-                            {exercises.map((exercise, index) => (
+                            {exerciseInputs.map((exercise, index) => (
                                 <View
                                     key={index}
                                     style={{ width: "100%", marginBottom: 0, flexDirection: "row"}}
@@ -236,7 +239,7 @@ export const AuthProviderList = (props: any): any => {
                                         <Input
                                             title={`Exercise ${index + 1}`}
                                             labelStyle={styles.label}
-                                            value={exercise}
+                                            value={exercise.name}
                                             onChangeText={(text) => handleExerciseChange(text, index)}
                                         />
                                     </View>
@@ -245,7 +248,7 @@ export const AuthProviderList = (props: any): any => {
                                     </View>
                                     <View style={{width: "15%", justifyContent: "flex-end"}}>
                                         <Input
-                                            value={sets[index]}
+                                            value={exercise.sets}
                                             keyboardType="numeric"
                                             textAlign="center"
                                             onChangeText={(text) => handleSetChange(text, index)}

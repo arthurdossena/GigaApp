@@ -26,7 +26,9 @@ export default function Home() {
         <View style={{ marginLeft: 10, justifyContent: "flex-start", alignItems: "flex-start", flex: 1, backgroundColor: "white" }}>
           <Text style={style.titleCard}>{item.title}</Text>
           <Text style={style.descriptionCard}>{item.description}</Text>
-          <Text style={style.exercisesCard}>{item.exercises.join(', ')}</Text>
+          <Text style={style.exercisesCard}>
+            {item.exercises.map(ex => ex.name).join(', ')}
+          </Text>
         </View>
         <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
           <TouchableOpacity style={style.buttonRemove} activeOpacity={0.4} onPress={() => handleDelete(item)}>

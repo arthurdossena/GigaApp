@@ -10,6 +10,5 @@ export type PropCard = {
     id: number,
     title: string,
     description: string,
-    exercises: string[],
-    sets: string[]
+    exercises: Array<{ name: string; sets: number; }>
 }
