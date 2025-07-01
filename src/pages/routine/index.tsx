@@ -88,11 +88,11 @@ export default function Routine() {
             {Array.from({ length: exercise.sets }).map((_, setIndex) => (
                 <View key={`${exercise.name}-${setIndex}`} style={[styles.tableHeader, { backgroundColor: themes.colors.background }]}>
                     <View style={styles.tableHeaderView}>
-                        <Text style={[styles.tableHeaderText, { textAlign: "center" }]}>{String(setIndex + 1)}</Text>
+                        <Text style={[styles.tableText, { textAlign: "center", fontWeight: "bold" }]}>{String(setIndex + 1)}</Text>
                     </View>
                     <View style={styles.tableHeaderView}>
                         <TextInput
-                            style={[styles.tableHeaderText, { textAlign: "center", width: "100%" }]}
+                            style={[styles.tableText, { textAlign: "center", width: "100%" }]}
                             keyboardType="numeric"
                             inputMode="numeric"
                             value={inputs[exercise.name]?.kg[setIndex] || ''}
@@ -101,7 +101,7 @@ export default function Routine() {
                     </View>
                     <View style={styles.tableHeaderView}>
                         <TextInput
-                            style={[styles.tableHeaderText, { textAlign: "center", width: "100%" }]}
+                            style={[styles.tableText, { textAlign: "center", width: "100%" }]}
                             keyboardType="numeric"
                             inputMode="numeric"
                             value={inputs[exercise.name]?.reps[setIndex] || ''}

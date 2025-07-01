@@ -37,6 +37,10 @@ export const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "black",
     },
+    tableText: {
+        fontSize: 16,
+        color: "black",
+    },
     exerciseTitle: {
         fontSize: 20,
         fontWeight: "bold",
