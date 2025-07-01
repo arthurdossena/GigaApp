@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
         paddingVertical: 40,
     },
     title: {
-        fontSize: 24,
+        fontSize: 26,
         color: "black",
         fontWeight: "bold",
         marginTop: 20,
@@ -25,14 +25,31 @@ export const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: "black",
     },
+    tableHeaderView: {
+        width: "20%",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 3,
+        //backgroundColor: themes.colors.primary,
+    },
     tableHeaderText: {
         fontSize: 16,
         fontWeight: "bold",
         color: "black",
     },
     exerciseTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "bold",
         color: "black",
-    }
+    },
+    checkButton: {
+        justifyContent: "center",
+        alignItems: "center",
+        width: 25,
+        height: 25,
+        borderWidth: 1,
+        borderColor: themes.colors.black,
+        backgroundColor: themes.colors.white,
+        borderRadius: 3,
+    },
 });
