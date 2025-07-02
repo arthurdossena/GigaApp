@@ -24,7 +24,7 @@ export default function Home() {
           </TouchableOpacity>
         </View>
         <View style={{ marginLeft: 10, justifyContent: "flex-start", alignItems: "flex-start", flex: 1, backgroundColor: "white" }}>
-          <Text style={style.titleCard}>{item.title}</Text>
+          <Text style={style.titleCard} numberOfLines={2}>{item.title}</Text>
           <Text style={style.descriptionCard}>{item.description}</Text>
           <Text style={style.exercisesCard}>
             {item.exercises.map(ex => ex.name).join(', ')}

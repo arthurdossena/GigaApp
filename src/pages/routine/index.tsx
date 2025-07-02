@@ -4,7 +4,7 @@ import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navig
 import { Text, View, Alert, TouchableOpacity } from 'react-native';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes'; 
-import { Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons';
 import { PropCard } from '../../global/Props';
 
 type RoutineRouteParams = {
@@ -15,6 +15,44 @@ export default function Routine() {
     const navigation = useNavigation<NavigationProp<any>>();
      const route = useRoute<RouteProp<{ Routine: RoutineRouteParams }, 'Routine'>>();
     const routineData: PropCard = route.params?.item;
+
+    const handleDelete = () => {
+        Alert.alert(
+            "Delete Routine",
+            "Are you sure you want to delete this routine?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    onPress: () => {
+                        navigation.goBack();
+                    }
+                }
+            ]
+        );
+    }
+
+    const handleFinish = () => {
+        Alert.alert(
+            "Finish Routine",
+            "Are you sure you want to finish this routine?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Finish",
+                    onPress: () => {
+                        navigation.goBack();
+                    }
+                }
+            ]
+        );
+    }
 
     if (!routineData) {
         return (
@@ -142,7 +180,15 @@ export default function Routine() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{routineData.title}</Text>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={handleDelete}>
+                    <MaterialIcons name="close" size={28}/>
+                </TouchableOpacity>
+                <Text style={styles.title} numberOfLines={3}>{routineData.title}</Text>
+                <TouchableOpacity onPress={handleFinish}>
+                    <AntDesign name="check" size={28}/>
+                </TouchableOpacity>
+            </View>
             <View style={{ marginTop: 10 }}>
                 <FlatList
                     data={routineData.exercises}

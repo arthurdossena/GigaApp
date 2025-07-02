@@ -66,7 +66,20 @@ export const AuthProviderList = (props: any): any => {
 
     const handleSave = async() => {
         if (!title.trim()) return Alert.alert("Please enter a title.");
-        //if (!description.trim()) return Alert.alert("Please enter a description.");
+        
+        const normalizedTitle = title.trim().toLowerCase();
+
+        const isDuplicate = routineList.some(
+            routine =>
+                routine.title.trim().toLowerCase() === normalizedTitle &&
+                routine.id !== id // id is the current routine's id (if editing)
+        );
+
+        if (isDuplicate) {
+            Alert.alert("Title already exists", "Please choose a unique title for your routine.");
+            return;
+        }
+
         const allExercisesValid = exerciseInputs.every(ex => ex.name.trim() !== "");
         const allSetsValid = exerciseInputs.every(ex => ex.sets.trim() !== "" && !isNaN(Number(ex.sets)) && Number(ex.sets) > 0);
         if (exerciseInputs.length === 1 && exerciseInputs[0].name === "" || exerciseInputs[0].sets === "")

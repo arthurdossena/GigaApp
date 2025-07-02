@@ -10,11 +10,23 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 40,
     },
+    header: {
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 10,
+        marginTop: 20,
+        minHeight: 56, // allow header to grow if needed
+    },
     title: {
+        flex: 1,
+        textAlign: "center",
         fontSize: 26,
         color: "black",
         fontWeight: "bold",
-        marginTop: 20,
+        marginTop: 0,
+        marginHorizontal: 20,
     },
     tableHeader: {
         flexDirection: "row",
