@@ -40,7 +40,7 @@ export const style = StyleSheet.create({
     },
     descriptionCard: {
         fontSize: 14,
-        color: 'gray',
+        color: 'black',
     },
     exercisesCard: {
         fontSize: 12,

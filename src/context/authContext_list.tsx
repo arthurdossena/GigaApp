@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, Platform, FlatList } from "react-native";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import { Input } from "../components/Input";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PropCard } from "../global/Props";
+import { FlashList } from "@shopify/flash-list";
 
 export const AuthContextList:any = createContext({});
 
@@ -14,18 +15,19 @@ export const AuthProviderList = (props: any): any => {
     const [description, setDescription] = useState("");
     const [exerciseInputs, setExerciseInputs] = useState<Array<{ name: string; sets: string }>>([{ name: "", sets: "" }]);
     const [id, setId] = useState(0);
-    const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
+    //const [exerciseItemHeight, setExerciseItemHeight] = useState(0);
     const [routineList, setRoutineList] = useState<Array<PropCard>>([]);
     const [routineListBackup, setRoutineListBackup] = useState<Array<PropCard>>([]);
     const [isEditing, setIsEditing] = useState(false);
 
-    const handleLayout = (event: any) => {
-        event.persist();
-        const { height } = event.nativeEvent.layout;
-        if (exerciseItemHeight === 0) {
-            setExerciseItemHeight(height);
-        }
-    };
+    // const handleLayout = (event: any) => {
+    //     if (!event?.nativeEvent?.layout) return;
+    //     event.persist && event.persist();
+    //     const { height } = event.nativeEvent.layout;
+    //     if (exerciseItemHeight === 0) {
+    //         setExerciseItemHeight(height);
+    //     }
+    // };
 
     const handleAddExercise = () => {
         setExerciseInputs([...exerciseInputs, { name: "", sets: "" }]);
@@ -198,7 +200,7 @@ export const AuthProviderList = (props: any): any => {
 
     const handleCloseModal = () => {
         if (isEditing) {
-            resetForm(); // your form reset logic
+            resetForm();
             setIsEditing(false);
         }
     };
@@ -209,29 +211,15 @@ export const AuthProviderList = (props: any): any => {
 
     const _container = () => {
         return (
-            <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={{ flex: 1 }}
-                keyboardVerticalOffset={0}
-            >
-                <View style={styles.container}>
-                    <ScrollView
-                        keyboardShouldPersistTaps="handled"
-                        contentContainerStyle={{ paddingTop:2, paddingBottom: 2, justifyContent: "center", alignItems: "center" }}
-                    >
-                        <View style={[
-                            styles.content,
-                            exerciseInputs.length > 3 && {
-                            height:
-                                Dimensions.get("window").height * 0.8 + (exerciseInputs.length - 3) * (80+10),
-                            } || { height: Dimensions.get("window").height * 0.8 },
-                        ]}>
-                            <Input
-                                title="Title"
-                                labelStyle={styles.label}
-                                value={title}
-                                onChangeText={setTitle}
-                            />
+            <View style={styles.container}>
+                    <View style={[styles.content,]}>
+                        <Input
+                            title="Title"
+                            labelStyle={styles.label}
+                            value={title}
+                            onChangeText={setTitle}
+                        />
+                        <View style={{ width: "100%", marginBottom: 10 }}>
                             <Input
                                 title="Description"
                                 labelStyle={styles.label}
@@ -242,32 +230,35 @@ export const AuthProviderList = (props: any): any => {
                                 value={description}
                                 onChangeText={setDescription}                        
                             />
-                            {exerciseInputs.map((exercise, index) => (
+                        </View>
+                        <FlashList
+                            data={exerciseInputs}
+                            keyExtractor={(_, index) => index.toString()}
+                            renderItem={({ item, index }) => (
                                 <View
+                                    style={{ width: "100%", marginBottom: 10, flexDirection: "row", height: 80 }}
                                     key={index}
-                                    style={{ width: "100%", marginBottom: 0, flexDirection: "row"}}
-                                    //onLayout={index === 0 ? handleLayout : undefined}
-                                    >
-                                    <View style={{width: "60%"}}>
+                                >
+                                    <View style={{ width: "60%" }}>
                                         <Input
                                             title={`Exercise ${index + 1}`}
                                             labelStyle={styles.label}
-                                            value={exercise.name}
+                                            value={item.name}
                                             onChangeText={(text) => handleExerciseChange(text, index)}
                                         />
                                     </View>
-                                    <View style={{justifyContent:"flex-end", marginBottom: 12, marginLeft: 10, marginRight: 5}}>
-                                        <Text style={{fontWeight: "bold"}}>Sets:</Text>
+                                    <View style={{ justifyContent: "flex-end", marginBottom: 12, marginLeft: 10, marginRight: 5 }}>
+                                        <Text style={{ fontWeight: "bold" }}>Sets:</Text>
                                     </View>
-                                    <View style={{width: "15%", justifyContent: "flex-end"}}>
+                                    <View style={{ width: "15%", justifyContent: "flex-end" }}>
                                         <Input
-                                            value={exercise.sets}
+                                            value={item.sets}
                                             keyboardType="numeric"
                                             textAlign="center"
                                             onChangeText={(text) => handleSetChange(text, index)}
                                         />
                                     </View>
-                                    <View key={index} style={{ width: "10%", justifyContent: "flex-end", alignItems: "center", paddingBottom: 10, marginLeft:3 }}>
+                                    <View style={{ width: "10%", justifyContent: "flex-end", alignItems: "center", paddingBottom: 10, marginLeft: 3, }}>
                                         {index > 0 && (
                                             <TouchableOpacity onPress={() => removeExercise(index)}>
                                                 <AntDesign name="closecircleo" size={20} color={"red"} />
@@ -275,23 +266,25 @@ export const AuthProviderList = (props: any): any => {
                                         )}
                                     </View>
                                 </View>
-                            ))}
-                            <TouchableOpacity
-                                onPress={handleAddExercise}
-                                style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    marginVertical: 10,
-                                }}
-                            >
-                                <AntDesign name="pluscircleo" size={20} />
-                                <Text style={{ marginLeft: 8 }}>Add Exercise</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                </View>
-            </KeyboardAvoidingView>
+                            )}
+                            estimatedItemSize={80}
+                            ListFooterComponent={
+                                <TouchableOpacity
+                                    onPress={handleAddExercise}
+                                    style={{
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        marginVertical: 10,
+                                    }}
+                                >
+                                    <AntDesign name="pluscircleo" size={20} />
+                                    <Text style={{ marginLeft: 8 }}>Add Exercise</Text>
+                                </TouchableOpacity>
+                            }
+                        />
+                    </View>
+            </View>
         )
     }
 
@@ -301,10 +294,10 @@ export const AuthProviderList = (props: any): any => {
             <Modalize
                 ref={modalizeRef}
                 onClose={handleCloseModal}
-                adjustToContentHeight={true}
+                //modalHeight={Dimensions.get("window").height * 0.85}
+                adjustToContentHeight = {true}
                 modalStyle={styles.container}
                 scrollViewProps={{
-                    //contentContainerStyle: { paddingBottom: 100 },
                     keyboardShouldPersistTaps: "handled"
                 }}
                 HeaderComponent={
@@ -349,13 +342,13 @@ export const styles = StyleSheet.create({
     },
     content: {
         width: "98%",
-        //height: Dimensions.get("window").height * 0.85,
+        height: Dimensions.get("window").height * 0.8,
         paddingHorizontal: 20,
         paddingTop: 10,
     },
     label: {
         fontSize: 16,
         fontWeight: "bold",
-        color: "#000"
+        color: "#000",
     }
 })

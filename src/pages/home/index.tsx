@@ -25,8 +25,8 @@ export default function Home() {
         </View>
         <View style={{ marginLeft: 10, justifyContent: "flex-start", alignItems: "flex-start", flex: 1, backgroundColor: "white" }}>
           <Text style={style.titleCard} numberOfLines={2}>{item.title}</Text>
-          <Text style={style.descriptionCard}>{item.description}</Text>
-          <Text style={style.exercisesCard}>
+          <Text style={style.descriptionCard} numberOfLines={3}>{item.description}</Text>
+          <Text style={style.exercisesCard} numberOfLines={2}>
             {item.exercises.map(ex => ex.name).join(', ')}
           </Text>
         </View>
