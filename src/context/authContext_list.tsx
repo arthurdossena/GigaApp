@@ -10,6 +10,8 @@ import { FlashList } from "@shopify/flash-list";
 export const AuthContextList:any = createContext({});
 
 export const AuthProviderList = (props: any): any => {
+    const API_URL = "https://gigaapp-y19k.onrender.com/api"; // URL do backend
+
     const modalizeRef = useRef<Modalize>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -92,67 +94,146 @@ export const AuthProviderList = (props: any): any => {
             return Alert.alert("Please fill in all sets fields with numbers greater than 0.");
 
         // Salvar e enviar ao backend
+        // try {
+        //     const exercisesForPropCard = exerciseInputs.map(ex => ({
+        //         name: ex.name,
+        //         sets: Number(ex.sets)
+        //     }));
+
+        //     const newItem: PropCard = {
+        //         id: id !== 0 ? id : Date.now(),
+        //         title,
+        //         description,
+        //         exercises: exercisesForPropCard,
+        //     };
+
+        //     const storageData = await AsyncStorage.getItem("routineList");
+        //     let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+
+        //     const itemIndex = routineList.findIndex((routine)=>routine.id === newItem.id);
+
+        //     if(itemIndex >= 0) {
+        //         routineList[itemIndex] = newItem;
+        //     } else {
+        //         routineList.push(newItem);
+        //     }
+
+        //     await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
+        //     setRoutineList(routineList);
+        //     setRoutineListBackup(routineList);
+
+        //     console.log("Routine saved:", routineList);
+    
+        //     Alert.alert("Success", "Routine saved!");
+        //     onClose();
+        //     resetForm();
+        // } catch (error) {
+        //     console.error("Error saving routine:", error);
+        // }
         try {
             const exercisesForPropCard = exerciseInputs.map(ex => ({
                 name: ex.name,
                 sets: Number(ex.sets)
             }));
 
-            const newItem: PropCard = {
-                id: id !== 0 ? id : Date.now(),
+            const routineData: Omit<PropCard, 'id'> & { id?: number } = {
                 title,
                 description,
                 exercises: exercisesForPropCard,
             };
 
-            const storageData = await AsyncStorage.getItem("routineList");
-            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
-
-            const itemIndex = routineList.findIndex((routine)=>routine.id === newItem.id);
-
-            if(itemIndex >= 0) {
-                routineList[itemIndex] = newItem;
-            } else {
-                routineList.push(newItem);
+            // Adiciona o ID apenas se estiver editando (id !== 0)
+            if (id !== 0) {
+                routineData.id = id;
             }
 
-            await AsyncStorage.setItem("routineList", JSON.stringify(routineList));
-            setRoutineList(routineList);
-            setRoutineListBackup(routineList);
+            const response = await fetch(`${API_URL}/routines`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(routineData),
+            });
 
-            console.log("Routine saved:", routineList);
-    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to save routine.");
+            }
+            
+            // Após salvar com sucesso, busca a lista atualizada do servidor
+            await getRoutineList();
+
+            console.log("Routine saved successfully via API");
+
             Alert.alert("Success", "Routine saved!");
             onClose();
             resetForm();
         } catch (error) {
-            console.error("Error saving routine:", error);
+            console.error("Error saving routine:" , error);
+            //Alert.alert("Error", error.message || "Could not save routine.");
         }
     };
 
     async function getRoutineList() {
+        // try {
+        //     const storageData = await AsyncStorage.getItem("routineList");
+        //     let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+        //     setRoutineList(routineList);
+        //     setRoutineListBackup(routineList);
+        // } catch (error) {
+        //     console.error("Error fetching routine list:", error);
+        // }
         try {
-            const storageData = await AsyncStorage.getItem("routineList");
-            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+            const response = await fetch(`${API_URL}/routines`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch routines from server.");
+            }
+            const routineList = await response.json();
             setRoutineList(routineList);
             setRoutineListBackup(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
+            // Opcional: Adicionar um Alert para o usuário
+            Alert.alert("Error", "Could not load routines.");
         }
     }
     
     const handleDelete = async (itemToDelete: PropCard) => {
+        // try {
+        //     const storageData = await AsyncStorage.getItem("routineList");
+        //     let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
+            
+        //     const updatedList = routineList.filter((item: { id: number; }) => item.id !== itemToDelete.id);
+            
+        //     await AsyncStorage.setItem("routineList", JSON.stringify(updatedList));
+        //     setRoutineList(updatedList);
+        //     setRoutineListBackup(updatedList);
+        // } catch (error) {
+        //     console.error("Error deleting routine:", error);            
+        // }
         try {
-            const storageData = await AsyncStorage.getItem("routineList");
-            let routineList:Array<any> = storageData ? JSON.parse(storageData) : [];
-            
-            const updatedList = routineList.filter((item: { id: number; }) => item.id !== itemToDelete.id);
-            
-            await AsyncStorage.setItem("routineList", JSON.stringify(updatedList));
+            const response = await fetch(`${API_URL}/routines/${itemToDelete.id}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                // Se o status não for 'No Content' (204) ou 'OK' (200), lança um erro
+                if(response.status !== 204){
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Failed to delete routine.");
+                }
+            }
+
+            // Remove o item da lista localmente para uma atualização de UI instantânea
+            const updatedList = routineList.filter((item) => item.id !== itemToDelete.id);
             setRoutineList(updatedList);
             setRoutineListBackup(updatedList);
+
+            console.log("Routine deleted successfully via API");
+
         } catch (error) {
-            console.error("Error deleting routine:", error);            
+            console.error("Error deleting routine:", error);
+            //Alert.alert("Error", error.message || "Could not delete the routine.");
         }
     }
     
