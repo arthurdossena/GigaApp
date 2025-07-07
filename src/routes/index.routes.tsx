@@ -3,8 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../pages/login';
 import BottomRoutes from './bottom.routes';
 import Routine from '../pages/routine';
-import Home from '../pages/home';
-import User from '../pages/user';
+import SignUp from '../pages/signUp';
 
 export default function Routes() {
     const Stack = createStackNavigator();
@@ -23,6 +22,7 @@ export default function Routes() {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="BottomRoutes" component={BottomRoutes} />
             <Stack.Screen name="Routine" component={Routine} />
+            <Stack.Screen name="SignUp" component={SignUp} />
 
         </Stack.Navigator>
     );

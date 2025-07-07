@@ -22,33 +22,8 @@ app.use(express.json());
 app.use(cors());
 
 // 5. Simulação de um banco de dados em memória
-// IMPORTANTE: Em um aplicativo real, você usaria um banco de dados como MongoDB, PostgreSQL, etc.
 // Os dados neste array serão perdidos toda vez que o servidor for reiniciado.
-let routines = [
-    {
-        id: 1,
-        title: "Treino de Peito e Tríceps",
-        description: "Foco em força e hipertrofia para a parte superior do corpo.",
-        exercises: [
-            { name: "Supino Reto", sets: 4 },
-            { name: "Crucifixo com Halteres", sets: 3 },
-            { name: "Flexão de Braço", sets: 3 },
-            { name: "Tríceps na Polia", sets: 4 }
-        ]
-    },
-    {
-        id: 2,
-        title: "Dia de Perna e Ombro",
-        description: "Treino completo para membros inferiores e deltoides.",
-        exercises: [
-            { name: "Agachamento Livre", sets: 5 },
-            { name: "Leg Press 45°", sets: 4 },
-            { name: "Cadeira Extensora", sets: 3 },
-            { name: "Desenvolvimento com Halteres", sets: 4 },
-            { name: "Elevação Lateral", sets: 3 }
-        ]
-    }
-]; // Array para armazenar as rotinas temporariamente
+let routines = []; // Array para armazenar as rotinas temporariamente
 
 // 6. Define as Rotas (Endpoints da API)
 

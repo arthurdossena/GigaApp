@@ -75,7 +75,7 @@ export default function Login()
             </View>
             <View style={{ flexDirection: "row" }}>
                 <Text style={style.textBottom}>Don't have an account?</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
                     <Text style={{color: themes.colors.primary}}> Sign up.</Text>
                 </TouchableOpacity>
             </View>
