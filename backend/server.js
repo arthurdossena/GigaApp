@@ -23,21 +23,67 @@ app.use(cors());
 
 // 5. Simulação de um banco de dados em memória
 // Os dados neste array serão perdidos toda vez que o servidor for reiniciado.
-let routines = []; // Array para armazenar as rotinas temporariamente
+let users = [
+  {
+    name: "John Doe",
+    email: "john@example.com",
+    password: "hashed_password",
+    routineList: [
+      {
+        id: 123,
+        title: "Routine 1",
+        description: "Desc",
+        exercises: [ 
+            { name: "Exercise 1", sets: 3 },
+            { name: "Exercise 2", sets: 4 }
+         ]
+      }
+    ]
+  }
+];
 
 // 6. Define as Rotas (Endpoints da API)
 
 // Rota GET: Para obter todas as rotinas
 app.get('/api/routines', (req, res) => {
-    console.log('GET /api/routines - Requisição recebida. Retornando rotinas:', routines.length);
-    // Retorna a lista de rotinas como JSON
-    res.json(routines);
+    const { email } = req.query;
+    const user = users.find(u => u.email === email);
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+    res.json(user.routineList);
+    console.log(`Rotinas do usuário ${user.name} retornadas com sucesso.`);
+});
+
+// Register a new user
+app.post('/api/register', (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Nome, email e senha são obrigatórios.' });
+  }
+  if (users.some(u => u.email === email)) {
+    return res.status(409).json({ message: 'Email já cadastrado.' });
+  }
+  users.push({ name, email, password, routineList: [] });
+  res.status(201).json({ message: 'Usuário registrado com sucesso.' });
+  console
+});
+
+// Login (simple, no token)
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = users.find(u => u.email === email && u.password === password);
+  if (!user) {
+    return res.status(401).json({ message: 'Email ou senha inválidos.' });
+  }
+  res.json({ name: user.name, email: user.email });
+  console.log(`Usuário ${user.name} logado com sucesso.`);
 });
 
 // Rota POST: Para criar uma nova rotina ou atualizar uma existente
 app.post('/api/routines', (req, res) => {
     // O corpo da requisição (JSON) é acessado via req.body
-    const { id, title, description, exercises } = req.body;
+    const { email, id, title, description, exercises } = req.body;
+    const user = users.find(u => u.email === email);
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
 
     // Validação básica dos dados recebidos
     if (!title || !description || !exercises || !Array.isArray(exercises) || exercises.length === 0) {
@@ -58,13 +104,13 @@ app.post('/api/routines', (req, res) => {
 
     let routineIndex = -1;
     if (id) {
-        routineIndex = routines.findIndex(r => r.id === id);
+        routineIndex = user.routineList.findIndex(r => r.id === id);
     }
 
     if (routineIndex !== -1) {
         // Atualiza rotina existente
         const updatedRoutine = { id, title, description, exercises };
-        routines[routineIndex] = updatedRoutine;
+        user.routineList[routineIndex] = updatedRoutine;
         console.log('POST /api/routines - Rotina atualizada:', updatedRoutine);
         res.status(200).json(updatedRoutine); // Retorna 200 OK para atualização
     } else {
@@ -75,7 +121,7 @@ app.post('/api/routines', (req, res) => {
             description,
             exercises
         };
-        routines.push(newRoutine);
+        user.routineList.push(newRoutine);
         console.log('POST /api/routines - Nova rotina salva:', newRoutine);
         res.status(201).json(newRoutine); // Retorna 201 Created para nova rotina
     }
@@ -83,31 +129,30 @@ app.post('/api/routines', (req, res) => {
 
 // Rota DELETE: Para deletar uma rotina específica por ID
 app.delete('/api/routines/:id', (req, res) => {
-    const routineId = Number(req.params.id); // Converte o ID da URL para número
+  const { email } = req.query;
+  const routineId = Number(req.params.id);
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
 
-    if (isNaN(routineId)) {
-        console.warn('DELETE /api/routines/:id - ID inválido fornecido:', req.params.id);
-        return res.status(400).json({ message: 'ID da rotina inválido.' });
-    }
+  const initialLength = user.routineList.length;
+  user.routineList = user.routineList.filter(r => r.id !== routineId);
 
-    const initialLength = routines.length;
-    routines = routines.filter(r => r.id !== routineId);
-
-    if (routines.length < initialLength) {
-        console.log(`DELETE /api/routines/${routineId} - Rotina deletada com sucesso.`);
-        res.status(204).send(); // Retorna 204 No Content para sucesso sem corpo
-    } else {
-        console.warn(`DELETE /api/routines/${routineId} - Rotina não encontrada.`);
-        res.status(404).json({ message: 'Rotina não encontrada.' }); // Retorna 404 Not Found
-    }
+  if (user.routineList.length < initialLength) {
+    res.status(204).send();
+    console.log(`DELETE /api/routines/${routineId} - Rotina com ID ${routineId} deletada com sucesso.`);
+  } else {
+    res.status(404).json({ message: 'Rotina não encontrada.' });
+    console.log(`DELETE /api/routines/${routineId} - Rotina com ID ${routineId} não encontrada.`);
+  }
 });
 
 // Rota DELETE ALL: Para limpar todas as rotinas (para fins de teste/desenvolvimento)
 // ATENÇÃO: Use com cautela em produção!
 app.delete('/api/routines/all', (req, res) => { // Alterado para '/all' para evitar conflito com /:id
-    routines = []; // Limpa o array
+    user.forEAch(u => u.routineList = []); // Limpa o array
     console.log('DELETE /api/routines/all - Todas as rotinas foram limpas.');
     res.status(204).send(); // Retorna status 204 (No Content) para sucesso sem corpo de resposta
+    console.log('Todas as rotinas foram limpas com sucesso.');
 });
 
 
@@ -120,4 +165,6 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log(`  POST /api/routines (para criar ou atualizar)`);
     console.log(`  DELETE /api/routines/:id (para deletar uma rotina específica)`);
     console.log(`  DELETE /api/routines/all (para limpar todas as rotinas)`);
+    console.log(`  POST /api/register (para registrar um novo usuário)`);
+    console.log(`  POST /api/login (para login simples)`);
 });

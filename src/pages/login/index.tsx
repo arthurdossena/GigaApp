@@ -18,6 +18,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 export default function Login()
 {
+    const API_URL = "https://gigaapp-y19k.onrender.com/api"; // URL do backend
 
     const navigation = useNavigation<NavigationProp<any>>();
 
@@ -26,20 +27,34 @@ export default function Login()
     const [showPassword, setShowPassword] = React.useState(true);
     const [loading, setLoading] = React.useState(false);
 
-    async function getLogin()
-    {
+    async function getLogin() {
         try {
             setLoading(true);
             if(!email || !password) {
+                setLoading(false);
                 return Alert.alert("Login", "Please fill in all fields.");
             }
 
-            navigation.reset({routes:[{name:"BottomRoutes"}]});
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-        } catch (error) {
-            console.log(error);
-        } finally {
             setLoading(false);
+
+            if (response.ok) {
+                const data = await response.json();
+                // Optionally save user info here (e.g., context, AsyncStorage)
+                navigation.reset({routes:[{name:"BottomRoutes"}]});
+            } else {
+                const data = await response.json();
+                Alert.alert("Login", data.message || "Login failed.");
+            }
+        } catch (error) {
+            setLoading(false);
+            Alert.alert("Login", "Network error.");
+            console.log(error);
         }
     }
 

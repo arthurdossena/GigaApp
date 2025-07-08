@@ -17,6 +17,8 @@ import { Button } from "../../components/Button";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 export default function SignUp() {
+    const API_URL = "https://gigaapp-y19k.onrender.com/api"
+
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
@@ -25,7 +27,7 @@ export default function SignUp() {
     const [loading, setLoading] = React.useState(false);
     const navigation = useNavigation<NavigationProp<any>>();
 
-    function getSignUp() {
+    async function getSignUp() {
         try {
             setLoading(true);
             if(!name || !email || !password || !confirmPassword) {
@@ -35,7 +37,36 @@ export default function SignUp() {
                 return Alert.alert("Sign up", "Passwords do not match.");
             }
 
-            navigation.reset({routes:[{name:"Login"}]});
+            fetch("https://gigaapp-y19k.onrender.com/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
+            })
+            .then(async res => {
+                setLoading(false);
+                const contentType = res.headers.get("content-type");
+                if (res.ok) {
+                    if (contentType && contentType.includes("application/json")) {
+                        Alert.alert("Sign up", "User registered successfully!");
+                        navigation.reset({routes:[{name:"Login"}]});
+                    } else {
+                        Alert.alert("Sign up", "Unexpected response from server.");
+                    }
+                } else {
+                    let data;
+                    if (contentType && contentType.includes("application/json")) {
+                        data = await res.json();
+                    } else {
+                        data = { message: "Unexpected error from server." };
+                    }
+                    Alert.alert("Sign up", data.message || "Registration failed.");
+                }
+            })
+            .catch(error => {
+                setLoading(false);
+                Alert.alert("Sign up", "Network error.");
+                console.log(error);
+            });
 
         } catch (error) {
             console.log(error);

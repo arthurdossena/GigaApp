@@ -13,6 +13,7 @@ export const AuthProviderList = (props: any): any => {
     const API_URL = "https://gigaapp-y19k.onrender.com/api"; // URL do backend
 
     const modalizeRef = useRef<Modalize>(null);
+    const [userEmail, setUserEmail] = useState<string | null>(null); // Set this after login: setUserEmail(emailFromLogin)
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [exerciseInputs, setExerciseInputs] = useState<Array<{ name: string; sets: string }>>([{ name: "", sets: "" }]);
@@ -136,10 +137,11 @@ export const AuthProviderList = (props: any): any => {
                 sets: Number(ex.sets)
             }));
 
-            const routineData: Omit<PropCard, 'id'> & { id?: number } = {
+            const routineData: Omit<PropCard, 'id'> & { id?: number; email: string } = {
                 title,
                 description,
                 exercises: exercisesForPropCard,
+                email: userEmail!,
             };
 
             // Adiciona o ID apenas se estiver editando (id !== 0)
@@ -184,7 +186,10 @@ export const AuthProviderList = (props: any): any => {
         //     console.error("Error fetching routine list:", error);
         // }
         try {
-            const response = await fetch(`${API_URL}/routines`);
+            if (!userEmail) {
+                throw new Error("User email is not set. Please log in first.");      
+            }
+            const response = await fetch(`${API_URL}/routines?email=${encodeURIComponent(userEmail)}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch routines from server.");
             }
