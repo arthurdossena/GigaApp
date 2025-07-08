@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     Text,
     View,
@@ -15,6 +15,8 @@ import { themes } from "../../global/themes";
 import { Input } from "../../components/Input";
 import { Button } from "../../components/Button";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { AuthContextList } from "../../context/authContext_list";
+import { AuthContextType } from "../../global/Props";
 
 export default function Login()
 {
@@ -46,7 +48,8 @@ export default function Login()
             if (response.ok) {
                 const data = await response.json();
                 // Optionally save user info here (e.g., context, AsyncStorage)
-                navigation.reset({routes:[{name:"BottomRoutes"}]});
+                
+                navigation.reset({routes:[{name:"BottomRoutes", params: { email }}]});
             } else {
                 const data = await response.json();
                 Alert.alert("Login", data.message || "Login failed.");

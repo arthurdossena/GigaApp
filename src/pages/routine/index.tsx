@@ -13,7 +13,7 @@ type RoutineRouteParams = {
 
 export default function Routine() {
     const navigation = useNavigation<NavigationProp<any>>();
-     const route = useRoute<RouteProp<{ Routine: RoutineRouteParams }, 'Routine'>>();
+    const route = useRoute<RouteProp<{ Routine: RoutineRouteParams }, 'Routine'>>();
     const routineData: PropCard = route.params?.item;
 
     const handleDelete = () => {

@@ -4,6 +4,7 @@ import Login from '../pages/login';
 import BottomRoutes from './bottom.routes';
 import Routine from '../pages/routine';
 import SignUp from '../pages/signUp';
+import { AuthProviderList } from '../context/authContext_list';
 
 export default function Routes() {
     const Stack = createStackNavigator();

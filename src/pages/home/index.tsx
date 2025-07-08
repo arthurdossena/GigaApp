@@ -7,7 +7,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes';
 import { AuthContextList } from '../../context/authContext_list';
 import { AuthContextType, PropCard } from '../../global/Props';
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, useRoute } from "@react-navigation/native";
 
 export default function Home() {
 

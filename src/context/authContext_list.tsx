@@ -12,8 +12,9 @@ export const AuthContextList:any = createContext({});
 export const AuthProviderList = (props: any): any => {
     const API_URL = "https://gigaapp-y19k.onrender.com/api"; // URL do backend
 
+    const {children, initialEmail} = props;
     const modalizeRef = useRef<Modalize>(null);
-    const [userEmail, setUserEmail] = useState<string | null>(null); // Set this after login: setUserEmail(emailFromLogin)
+    const [userEmail, setUserEmail] = useState<string | null>(initialEmail);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [exerciseInputs, setExerciseInputs] = useState<Array<{ name: string; sets: string }>>([{ name: "", sets: "" }]);
@@ -187,7 +188,8 @@ export const AuthProviderList = (props: any): any => {
         // }
         try {
             if (!userEmail) {
-                throw new Error("User email is not set. Please log in first.");      
+                console.log("Aguardando e-mail do usuário para buscar rotinas.");
+                return;      
             }
             const response = await fetch(`${API_URL}/routines?email=${encodeURIComponent(userEmail)}`);
             if (!response.ok) {
@@ -292,8 +294,10 @@ export const AuthProviderList = (props: any): any => {
     };
 
     useEffect(() => {
-        getRoutineList();
-    }, []);
+        if (userEmail) {
+            getRoutineList();
+        }
+    }, [userEmail]);
 
     const _container = () => {
         return (
