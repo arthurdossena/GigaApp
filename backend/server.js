@@ -1,5 +1,3 @@
-// server.js na sua pasta 'backend'
-
 // 1. Importa os módulos necessários
 const express = require('express');
 const cors = require('cors'); // Para permitir requisições do seu app Expo
@@ -38,7 +36,8 @@ let users = [
             { name: "Exercise 2", sets: 4 }
          ]
       }
-    ]
+    ],
+    workoutHistory: []
   }
 ];
 
@@ -69,7 +68,7 @@ app.post('/api/register', (req, res) => {
   if (users.some(u => u.email === email)) {
     return res.status(409).json({ message: 'Email já cadastrado.' });
   }
-  users.push({ name, email, password, routineList: [] });
+  users.push({ name, email, password, routineList: [], workoutHistory: [] });
   res.status(201).json({ message: 'Usuário registrado com sucesso.' });
   console
 });
@@ -132,6 +131,48 @@ app.post('/api/routines', (req, res) => {
         console.log('POST /api/routines - Nova rotina salva:', newRoutine);
         res.status(201).json(newRoutine); // Retorna 201 Created para nova rotina
     }
+});
+
+// NOVO: Rota POST para salvar uma sessão de treino concluída
+app.post('/api/history', (req, res) => {
+    const { email, routineId, date, weightLifted } = req.body;
+
+    // Encontra o usuário
+    const user = users.find(u => u.email === email);
+    if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    // Validação dos dados
+    if (routineId === undefined || !date || weightLifted === undefined) {
+        return res.status(400).json({ message: 'Dados do treino incompletos. routineId, date e weightLifted são obrigatórios.' });
+    }
+
+    // Cria o novo registro de histórico
+    const newHistoryRecord = {
+        id: Date.now(), // ID único para o registro do histórico
+        routineId,
+        date,
+        weightLifted
+    };
+
+    // Adiciona o registro ao histórico do usuário
+    user.workoutHistory.push(newHistoryRecord);
+
+    console.log(`POST /api/history - Histórico salvo para ${user.email}:`, newHistoryRecord);
+    res.status(201).json(newHistoryRecord); // Retorna o registro criado com status 201
+});
+
+// NOVO: Rota GET para buscar o histórico de treino de um usuário
+app.get('/api/history', (req, res) => {
+    const { email } = req.query;
+    const user = users.find(u => u.email === email);
+    if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    console.log(`GET /api/history - Histórico de ${user.email} retornado com sucesso.`);
+    res.status(200).json(user.workoutHistory);
 });
 
 // Rota DELETE: Para deletar uma rotina específica por ID
