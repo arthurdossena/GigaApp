@@ -49,7 +49,7 @@ export default function Login()
                 const data = await response.json();
                 // Optionally save user info here (e.g., context, AsyncStorage)
                 
-                navigation.reset({routes:[{name:"BottomRoutes", params: { email }}]});
+                navigation.reset({routes:[{name:"BottomRoutes", params: { email, name: data.name }}]});
             } else {
                 const data = await response.json();
                 Alert.alert("Login", data.message || "Login failed.");

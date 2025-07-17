@@ -4,7 +4,7 @@ export interface AuthContextType {
     handleEdit: Function,
     handleDelete: Function,
     filter: (text:string) => void,
-    // userEmail: string | null,
+    userEmail: string | null,
     // setUserEmail: (email:string | null) => void,
 }
 

@@ -1,19 +1,46 @@
-import React, { useContext} from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { style } from '../home/styles';
 import { Input } from '../../components/Input';
 import { FontAwesome5, MaterialIcons, Entypo } from '@expo/vector-icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes';
-import { AuthContextList } from '../../context/authContext_list';
+import { AuthContextList, AuthProviderList } from '../../context/authContext_list';
 import { AuthContextType, PropCard } from '../../global/Props';
 import { useNavigation, NavigationProp, useRoute } from "@react-navigation/native";
 
 export default function Home() {
 
   const navigation = useNavigation<NavigationProp<any>>();
+  
+  const [name, setName] = React.useState("");
+  const {onOpen, routineList, handleDelete, handleEdit, filter, userEmail} = useContext<AuthContextType>(AuthContextList);
 
-  const {routineList, handleDelete, handleEdit, filter} = useContext<AuthContextType>(AuthContextList);
+  useEffect(() => {
+        // Cria uma função async para poder usar await
+        const fetchUserName = async () => {
+            if (userEmail) {
+                try {
+                    const response = await fetch(`https://gigaapp-y19k.onrender.com/api/username?email=${userEmail}`);
+                    
+                    // Se a resposta não for OK, lança um erro e vai para o catch
+                    if (!response.ok) {
+                        throw new Error('Falha ao buscar nome do usuário.');
+                    }
+                    
+                    const data = await response.json();
+                    setName(data.name);
+
+                } catch (error) {
+                    console.error("Error fetching user name:", error);
+                    // Opcional: defina um nome padrão em caso de erro
+                    setName("Guest"); 
+                }
+            }
+        };
+
+        fetchUserName();
+    }, [userEmail])
 
   const _renderCard = (item: PropCard) => {
     return (
@@ -42,7 +69,7 @@ export default function Home() {
   return (
     <View style={style.container}>
       <View style={style.header}>
-        <Text style={style.greeting}>Welcome back!</Text>
+        <Text style={style.greeting}>Welcome back! {name}</Text>
         <View style={style.boxInput}>
           <Input
             placeholder="Search your routine..."

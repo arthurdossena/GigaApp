@@ -53,6 +53,13 @@ app.get('/api/routines', (req, res) => {
     console.log(`Rotinas do usuário ${user.name} retornadas com sucesso.`);
 });
 
+app.get('/api/username', (req, res) => {
+  const { email } = req.query;
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+  res.json({ name: user.name });
+});
+
 // Register a new user
 app.post('/api/register', (req, res) => {
   const { name, email, password } = req.body;
@@ -167,4 +174,5 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log(`  DELETE /api/routines/all (para limpar todas as rotinas)`);
     console.log(`  POST /api/register (para registrar um novo usuário)`);
     console.log(`  POST /api/login (para login simples)`);
+    console.log(users.length > 0 ? `Usuários registrados: ${users.map(u => u.email).join(', ')}` : 'Nenhum usuário registrado ainda.');
 });

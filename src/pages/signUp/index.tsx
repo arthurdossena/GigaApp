@@ -37,7 +37,7 @@ export default function SignUp() {
                 return Alert.alert("Sign up", "Passwords do not match.");
             }
 
-            fetch("https://gigaapp-y19k.onrender.com/api/register", {
+            fetch(`${API_URL}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password }),

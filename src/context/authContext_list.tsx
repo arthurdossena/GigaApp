@@ -192,12 +192,21 @@ export const AuthProviderList = (props: any): any => {
                 return;      
             }
             const response = await fetch(`${API_URL}/routines?email=${encodeURIComponent(userEmail)}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch routines from server.");
-            }
-            const routineList = await response.json();
-            setRoutineList(routineList);
-            setRoutineListBackup(routineList);
+
+        // Check if the response is OK, otherwise throw an error
+        if (!response.ok) {
+            // This will catch server errors like 500 and show a generic message
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        // Read the response body ONCE as text
+        const responseText = await response.text();
+
+        // The response might be empty, so we check before parsing
+        const routineList = responseText ? JSON.parse(responseText) : [];
+
+        setRoutineList(routineList);
+        setRoutineListBackup(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
             // Opcional: Adicionar um Alert para o usuário
@@ -379,7 +388,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}
