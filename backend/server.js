@@ -25,7 +25,7 @@ let users = [
   {
     name: "John Doe",
     email: "john@example.com",
-    password: "hashed_password",
+    password: "a",
     routineList: [
       {
         id: 123,
@@ -157,7 +157,7 @@ app.post('/api/history', (req, res) => {
     };
 
     // Adiciona o registro ao histórico do usuário
-    user.workoutHistory.push(newHistoryRecord);
+    user.workoutHistory.unshift(newHistoryRecord);
 
     console.log(`POST /api/history - Histórico salvo para ${user.email}:`, newHistoryRecord);
     res.status(201).json(newHistoryRecord); // Retorna o registro criado com status 201

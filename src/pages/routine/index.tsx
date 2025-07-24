@@ -20,15 +20,15 @@ export default function Routine() {
 
     const handleDelete = () => {
         Alert.alert(
-            "Delete Routine",
-            "Are you sure you want to delete this routine?",
+            "Exit Routine",
+            "Are you sure you want to exit without saving this routine?",
             [
                 {
                     text: "Cancel",
                     style: "cancel"
                 },
                 {
-                    text: "Delete",
+                    text: "Exit",
                     onPress: () => {
                         navigation.goBack();
                     }

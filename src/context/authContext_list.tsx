@@ -23,6 +23,7 @@ export const AuthProviderList = (props: any): any => {
     const [routineList, setRoutineList] = useState<Array<PropCard>>([]);
     const [routineListBackup, setRoutineListBackup] = useState<Array<PropCard>>([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [workoutHistory, setWorkoutHistory] = useState([]);
 
     // const handleLayout = (event: any) => {
     //     if (!event?.nativeEvent?.layout) return;
@@ -201,6 +202,20 @@ export const AuthProviderList = (props: any): any => {
         }
     };
 
+    const getWorkoutHistory = async () => {
+        if (!userEmail) return;
+        try {
+            const response = await fetch(`${API_URL}/history?email=${encodeURIComponent(userEmail)}`);
+            if (!response.ok) {
+                throw new Error("Falha ao buscar o histórico de treinos.");
+            }
+            const historyData = await response.json();
+            setWorkoutHistory(historyData);
+        } catch (error) {
+            console.error("Erro ao buscar o histórico de treinos:", error);
+        }
+    };
+
     async function getRoutineList() {
         // try {
         //     const storageData = await AsyncStorage.getItem("routineList");
@@ -321,6 +336,12 @@ export const AuthProviderList = (props: any): any => {
     useEffect(() => {
         if (userEmail) {
             getRoutineList();
+            getWorkoutHistory();
+        }
+        else {
+            setRoutineList([]);
+            setRoutineListBackup([]);
+            setWorkoutHistory([]);
         }
     }, [userEmail]);
 
@@ -404,7 +425,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail, handleSaveWorkoutSession}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail, handleSaveWorkoutSession, workoutHistory, getWorkoutHistory}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}
