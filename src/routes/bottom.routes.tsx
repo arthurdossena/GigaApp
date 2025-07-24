@@ -7,10 +7,10 @@ import { AuthProviderList } from "../context/authContext_list";
 const Tab = createBottomTabNavigator();
 
 export default function BottomRoutes({route}: any) {
-  const { email } = route?.params || {};
+  //const { email } = route?.params || {};
 
   return (
-    <AuthProviderList initialEmail={email}>
+    //<AuthProviderList initialEmail={email}>
       <Tab.Navigator
           screenOptions={{
               headerShown: false
@@ -23,6 +23,6 @@ export default function BottomRoutes({route}: any) {
           <Tab.Screen name="User" component={User} />
 
       </Tab.Navigator>
-    </AuthProviderList>
+    //</AuthProviderList>
   );
 }

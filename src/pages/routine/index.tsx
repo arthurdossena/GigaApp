@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { styles } from './styles';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import { Text, View, Alert, TouchableOpacity } from 'react-native';
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import { themes } from '../../global/themes'; 
 import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons';
-import { PropCard } from '../../global/Props';
+import { AuthContextType, PropCard } from '../../global/Props';
+import { AuthContextList } from '../../context/authContext_list';
 
 type RoutineRouteParams = {
   item: PropCard;
@@ -15,6 +16,7 @@ export default function Routine() {
     const navigation = useNavigation<NavigationProp<any>>();
     const route = useRoute<RouteProp<{ Routine: RoutineRouteParams }, 'Routine'>>();
     const routineData: PropCard = route.params?.item;
+    const { handleSaveWorkoutSession, userEmail } = useContext<AuthContextType>(AuthContextList);
 
     const handleDelete = () => {
         Alert.alert(
@@ -36,17 +38,49 @@ export default function Routine() {
     }
 
     const handleFinish = () => {
+
+        let totalWeightLifted = 0;
+
+        // Itera sobre os exercícios da rotina
+        routineData.exercises.forEach(exercise => {
+            // Itera sobre cada série do exercício
+            Array.from({ length: exercise.sets }).forEach((_, setIndex) => {
+                // Verifica se a série foi marcada no estado checkedSets
+                if (checkedSets[exercise.name]?.[setIndex]) {
+                    const kgValue = parseFloat(inputs[exercise.name].kg[setIndex]?.replace(',', '.') || '0');
+                    const repsValue = parseInt(inputs[exercise.name].reps[setIndex] || '0', 10);
+
+                    // Adiciona o produto (kg * reps) ao total
+                    if (!isNaN(kgValue) && !isNaN(repsValue)) {
+                        totalWeightLifted += kgValue * repsValue;
+                    }
+                }
+            });
+        });
+
+        if (totalWeightLifted === 0) {
+            Alert.alert("Atenção", "Você precisa preencher e marcar pelo menos uma série para finalizar o treino.");
+            return;
+        }
+
         Alert.alert(
             "Finish Routine",
-            "Are you sure you want to finish this routine?",
-            [
+            `Are you sure you want to finish this routine with ${totalWeightLifted.toFixed(2)} kg lifted?`,           [
                 {
                     text: "Cancel",
                     style: "cancel"
                 },
                 {
-                    text: "Finish",
+                    text: "Finish and save",
                     onPress: () => {
+                        const workoutData = {
+                            routineId: routineData.id,
+                            date: new Date(),
+                            weightLifted: totalWeightLifted,
+                            email: userEmail!,
+                        };
+                        // Chama a função do contexto para salvar os dados
+                        handleSaveWorkoutSession(workoutData);
                         navigation.goBack();
                     }
                 }
@@ -193,7 +227,7 @@ export default function Routine() {
                 <FlatList
                     data={routineData.exercises}
                     renderItem={_renderExercise}
-                    keyExtractor={(item) => item.name} // Key extractor based on exercise name (NEED TO MAKE NAMES UNIQUE)
+                    keyExtractor={(item) => item.name} 
                 />
             </View>
         </View>

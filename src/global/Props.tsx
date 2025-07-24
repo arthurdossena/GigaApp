@@ -5,7 +5,7 @@ export interface AuthContextType {
     handleDelete: Function,
     filter: (text:string) => void,
     userEmail: string | null,
-    // setUserEmail: (email:string | null) => void,
+    handleSaveWorkoutSession: (workoutData: { routineId: number; date: Date; weightLifted: number; email: string; }) => Promise<void>
 }
 
 export type PropCard = {

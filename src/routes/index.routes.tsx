@@ -4,6 +4,7 @@ import Login from '../pages/login';
 import BottomRoutes from './bottom.routes';
 import Routine from '../pages/routine';
 import SignUp from '../pages/signUp';
+import AppRoutes from './appRoutes';
 import { AuthProviderList } from '../context/authContext_list';
 
 export default function Routes() {
@@ -21,8 +22,7 @@ export default function Routes() {
         >
 
             <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="BottomRoutes" component={BottomRoutes} />
-            <Stack.Screen name="Routine" component={Routine} />
+            <Stack.Screen name="AppRoutes" component={AppRoutes} />
             <Stack.Screen name="SignUp" component={SignUp} />
 
         </Stack.Navigator>

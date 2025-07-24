@@ -26,6 +26,7 @@ export default function User() {
   return (
     <View style={styles.container}>
         <Text style={styles.name}>User</Text>
+
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="exit" size={24} color="gray"/>
         </TouchableOpacity>

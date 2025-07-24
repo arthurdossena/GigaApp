@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <View style={style.container}>
       <View style={style.header}>
-        <Text style={style.greeting}>Welcome back! {name}</Text>
+        <Text style={style.greeting}>Welcome back, {name.split(" ")[0]}!</Text>
         <View style={style.boxInput}>
           <Input
             placeholder="Search your routine..."

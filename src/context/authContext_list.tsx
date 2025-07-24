@@ -177,6 +177,30 @@ export const AuthProviderList = (props: any): any => {
         }
     };
 
+    const handleSaveWorkoutSession = async (workoutData: { routineId: number; date: Date; weightLifted: number; email: string; }) => {
+        try {
+            const response = await fetch(`${API_URL}/history`, { // Usando o novo endpoint /history
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(workoutData),
+            });
+
+            if (!response.ok) {
+                throw new Error("Falha ao salvar o histórico de treino.");
+            }
+
+            const savedSession = await response.json();
+            console.log("Sessão de treino salva com sucesso:", savedSession);
+            Alert.alert("Sucesso!", "Seu treino foi salvo no histórico.");
+
+        } catch (error) {
+            console.error("Erro ao salvar a sessão de treino:", error);
+            Alert.alert("Erro", "Não foi possível salvar seu treino.");
+        }
+    };
+
     async function getRoutineList() {
         // try {
         //     const storageData = await AsyncStorage.getItem("routineList");
@@ -192,21 +216,13 @@ export const AuthProviderList = (props: any): any => {
                 return;      
             }
             const response = await fetch(`${API_URL}/routines?email=${encodeURIComponent(userEmail)}`);
-
-        // Check if the response is OK, otherwise throw an error
-        if (!response.ok) {
-            // This will catch server errors like 500 and show a generic message
-            throw new Error(`Server responded with status: ${response.status}`);
-        }
-
-        // Read the response body ONCE as text
-        const responseText = await response.text();
-
-        // The response might be empty, so we check before parsing
-        const routineList = responseText ? JSON.parse(responseText) : [];
-
-        setRoutineList(routineList);
-        setRoutineListBackup(routineList);
+            
+            if (!response.ok) {
+                throw new Error("Failed to fetch routines from server.");
+            }
+            const routineList = await response.json();
+            setRoutineList(routineList);
+            setRoutineListBackup(routineList);
         } catch (error) {
             console.error("Error fetching routine list:", error);
             // Opcional: Adicionar um Alert para o usuário
@@ -272,7 +288,7 @@ export const AuthProviderList = (props: any): any => {
         }
     }
 
-    const filter =  (text: string) => {
+    const filter = (text: string) => {
         if(routineListBackup.length === 0) return;
 
         const array = routineListBackup;
@@ -388,7 +404,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail, handleSaveWorkoutSession}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}
