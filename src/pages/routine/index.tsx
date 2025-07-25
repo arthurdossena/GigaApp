@@ -75,6 +75,7 @@ export default function Routine() {
                     onPress: () => {
                         const workoutData = {
                             routineId: routineData.id,
+                            title: routineData.title,
                             date: new Date(),
                             weightLifted: totalWeightLifted,
                             email: userEmail!,

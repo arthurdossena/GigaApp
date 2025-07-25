@@ -17,7 +17,6 @@ export default function Home() {
   const {onOpen, routineList, handleDelete, handleEdit, filter, userEmail} = useContext<AuthContextType>(AuthContextList);
 
   useEffect(() => {
-        // Cria uma função async para poder usar await
         const fetchUserName = async () => {
             if (userEmail) {
                 try {

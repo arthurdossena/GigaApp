@@ -4,7 +4,7 @@ import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Modalize } from "react-native-modalize";
 import { Input } from "../components/Input";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { PropCard } from "../global/Props";
+import { PropCard, WorkoutSession } from "../global/Props";
 import { FlashList } from "@shopify/flash-list";
 
 export const AuthContextList:any = createContext({});
@@ -178,7 +178,7 @@ export const AuthProviderList = (props: any): any => {
         }
     };
 
-    const handleSaveWorkoutSession = async (workoutData: { routineId: number; title: String, date: Date; weightLifted: number; email: string; }) => {
+    const handleSaveWorkoutSession = async (workoutData: WorkoutSession) => {
         try {
             const response = await fetch(`${API_URL}/history`, { // Usando o novo endpoint /history
                 method: 'POST',
@@ -194,7 +194,7 @@ export const AuthProviderList = (props: any): any => {
 
             const savedSession = await response.json();
             console.log("Sessão de treino salva com sucesso:", savedSession);
-            Alert.alert("Sucesso!", "Seu treino foi salvo no histórico.");
+            //Alert.alert("Sucesso!", "Seu treino foi salvo no histórico.");
 
         } catch (error) {
             console.error("Erro ao salvar a sessão de treino:", error);
@@ -242,6 +242,23 @@ export const AuthProviderList = (props: any): any => {
             console.error("Error fetching routine list:", error);
             // Opcional: Adicionar um Alert para o usuário
             Alert.alert("Error", "Could not load routines.");
+        }
+    }
+
+    const handleDeleteWorkoutHistory = async (item: WorkoutSession) => {
+        try {
+            const response = await fetch(`${API_URL}/history/${item.id}?email=${encodeURIComponent(userEmail!)}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete workout history.");
+            }
+
+            console.log("Workout history deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting workout history:", error);
+            Alert.alert("Error", "Could not delete workout history.");
         }
     }
     
@@ -425,7 +442,7 @@ export const AuthProviderList = (props: any): any => {
     }
 
     return (
-        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail, handleSaveWorkoutSession, workoutHistory, getWorkoutHistory}}>
+        <AuthContextList.Provider value={{onOpen, routineList, handleDelete, handleEdit, filter, userEmail, handleSaveWorkoutSession, workoutHistory, getWorkoutHistory, handleDeleteWorkoutHistory}}>
             {props.children}
             <Modalize
                 ref={modalizeRef}

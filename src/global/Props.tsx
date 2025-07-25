@@ -6,8 +6,9 @@ export interface AuthContextType {
     filter: (text:string) => void,
     userEmail: string | null,
     handleSaveWorkoutSession: (workoutData: { routineId: number; date: Date; weightLifted: number; email: string; }) => Promise<void>,
-    workoutHistory: Array<{ routineId: number; title: String; date: Date; weightLifted: number; email: string; }>,
-    getWorkoutHistory: () => Promise<void>
+    workoutHistory: Array<WorkoutSession>,
+    getWorkoutHistory: () => Promise<void>,
+    handleDeleteWorkoutHistory: (item: {id: number, routineId: number; title: String; date: Date; weightLifted: number; email: string;}) => Promise<void>,
 }
 
 export type PropCard = {
@@ -15,4 +16,13 @@ export type PropCard = {
     title: string,
     description: string,
     exercises: Array<{ name: string; sets: number; }>
+}
+
+export type WorkoutSession = {
+    id: number,
+    routineId: number,
+    title: string,
+    date: Date,
+    weightLifted: number,
+    email: string,
 }
