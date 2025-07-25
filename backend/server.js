@@ -176,6 +176,24 @@ app.get('/api/history', (req, res) => {
     res.status(200).json(user.workoutHistory);
 });
 
+app.delete('/api/history/:id', (req, res) => {
+  const { email } = req.query;
+  const historyId = Number(req.params.date);
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+
+  const initialLength = user.workoutHistory.length;
+  user.workoutHistory = user.workoutHistory.filter(h => h.date !== historyId);
+
+  if (user.workoutHistory.length < initialLength) {
+    res.status(204).send();
+    console.log(`DELETE /api/history/${historyId} - Histórico com ID ${historyId} deletado com sucesso.`);
+  } else {
+    res.status(404).json({ message: 'Registro de histórico não encontrado.' });
+    console.log(`DELETE /api/history/${historyId} - Histórico com ID ${historyId} não encontrado.`);
+  }
+});
+
 // Rota DELETE: Para deletar uma rotina específica por ID
 app.delete('/api/routines/:id', (req, res) => {
   const { email } = req.query;
