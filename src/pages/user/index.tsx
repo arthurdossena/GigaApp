@@ -32,8 +32,11 @@ export default function User() {
     ]);
   };
 
-  const renderHistoryItem = ({ item }: { item: { routineId: number, date: Date, weightLifted: number, email: string } }) => (
+  const renderHistoryItem = ({ item }: { item: { routineId: number, title: String, date: Date, weightLifted: number, email: string } }) => (
     <View style={styles.historyItem}>
+      <Text>
+        {item.title}
+      </Text>
       <Text style={styles.historyDate}>
         {new Date(item.date).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
       </Text>

@@ -178,7 +178,7 @@ export const AuthProviderList = (props: any): any => {
         }
     };
 
-    const handleSaveWorkoutSession = async (workoutData: { routineId: number; date: Date; weightLifted: number; email: string; }) => {
+    const handleSaveWorkoutSession = async (workoutData: { routineId: number; title: String, date: Date; weightLifted: number; email: string; }) => {
         try {
             const response = await fetch(`${API_URL}/history`, { // Usando o novo endpoint /history
                 method: 'POST',

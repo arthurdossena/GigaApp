@@ -6,7 +6,7 @@ export interface AuthContextType {
     filter: (text:string) => void,
     userEmail: string | null,
     handleSaveWorkoutSession: (workoutData: { routineId: number; date: Date; weightLifted: number; email: string; }) => Promise<void>,
-    workoutHistory: Array<{ routineId: number; date: Date; weightLifted: number; email: string; }>,
+    workoutHistory: Array<{ routineId: number; title: String; date: Date; weightLifted: number; email: string; }>,
     getWorkoutHistory: () => Promise<void>
 }
 

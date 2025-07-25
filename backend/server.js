@@ -135,7 +135,7 @@ app.post('/api/routines', (req, res) => {
 
 // NOVO: Rota POST para salvar uma sessão de treino concluída
 app.post('/api/history', (req, res) => {
-    const { email, routineId, date, weightLifted } = req.body;
+    const { email, title, routineId, date, weightLifted } = req.body;
 
     // Encontra o usuário
     const user = users.find(u => u.email === email);
@@ -151,6 +151,7 @@ app.post('/api/history', (req, res) => {
     // Cria o novo registro de histórico
     const newHistoryRecord = {
         id: Date.now(), // ID único para o registro do histórico
+        title,
         routineId,
         date,
         weightLifted
