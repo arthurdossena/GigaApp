@@ -17,7 +17,7 @@ export default function User() {
 
   useEffect(() => {
     getWorkoutHistory();
-  }, [workoutHistory.length]);
+  }, [workoutHistory]);
 
   useEffect(() => {
     fetchUserName();
