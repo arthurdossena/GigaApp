@@ -178,12 +178,12 @@ app.get('/api/history', (req, res) => {
 
 app.delete('/api/history/:id', (req, res) => {
   const { email } = req.query;
-  const historyId = Number(req.params.date);
+  const historyId = Number(req.params.id);
   const user = users.find(u => u.email === email);
   if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
 
   const initialLength = user.workoutHistory.length;
-  user.workoutHistory = user.workoutHistory.filter(h => h.date !== historyId);
+  user.workoutHistory = user.workoutHistory.filter(h => h.id !== historyId);
 
   if (user.workoutHistory.length < initialLength) {
     res.status(204).send();
