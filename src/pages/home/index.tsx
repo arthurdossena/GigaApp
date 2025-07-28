@@ -14,7 +14,7 @@ export default function Home() {
   const navigation = useNavigation<NavigationProp<any>>();
   
   const [name, setName] = React.useState("");
-  const {onOpen, routineList, handleDelete, handleEdit, filter, userEmail} = useContext<AuthContextType>(AuthContextList);
+  const {onOpen, routineList, handleDelete, handleEdit, filter, userEmail, getWorkoutHistory} = useContext<AuthContextType>(AuthContextList);
 
   useEffect(() => {
         const fetchUserName = async () => {
@@ -57,7 +57,7 @@ export default function Home() {
           </Text>
         </View>
         <View style={{ justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
-          <TouchableOpacity style={style.buttonRemove} activeOpacity={0.4} onPress={() => handleDelete(item)}>
+          <TouchableOpacity style={style.buttonRemove} activeOpacity={0.4} onPress={() => (handleDelete(item))}>
             <FontAwesome5 name="trash-alt" size={14} color={themes.colors.primary} />
           </TouchableOpacity>
         </View>

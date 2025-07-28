@@ -17,11 +17,16 @@ export default function User() {
 
   useEffect(() => {
     getWorkoutHistory();
-  }, [workoutHistory]);
+  }, []);
 
   useEffect(() => {
     fetchUserName();
   }, [userEmail]);
+
+  const handleDeleteAndRefresh = async (item: WorkoutSession) => {
+    await handleDeleteWorkoutHistory(item);
+    await getWorkoutHistory();
+  };
 
   const fetchUserName = async () => {
       if (userEmail) {
@@ -86,10 +91,13 @@ export default function User() {
       <View style={styles.header}>
         <Text style={styles.name}>{name}</Text>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="exit" size={24} color="white"/>
+          <Ionicons name="exit" size={22} color="white"/>
         </TouchableOpacity>
       </View>
-      <View style={styles.content}> 
+      <View style={styles.content}>
+        <View style={styles.workoutHistoryHeader}>
+          <Text style={styles.workoutHistory}>WORKOUT HISTORY</Text>
+        </View>
         <FlashList
           data={workoutHistory}
           renderItem={renderHistoryItem}

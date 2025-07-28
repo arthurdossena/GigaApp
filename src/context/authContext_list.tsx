@@ -196,6 +196,8 @@ export const AuthProviderList = (props: any): any => {
             console.log("Sessão de treino salva com sucesso:", savedSession);
             //Alert.alert("Sucesso!", "Seu treino foi salvo no histórico.");
 
+            await getWorkoutHistory();
+
         } catch (error) {
             console.error("Erro ao salvar a sessão de treino:", error);
             Alert.alert("Erro", "Não foi possível salvar seu treino.");
@@ -254,6 +256,8 @@ export const AuthProviderList = (props: any): any => {
             if (!response.ok) {
                 throw new Error("Failed to delete workout history.");
             }
+
+            await getWorkoutHistory();
 
             console.log("Workout history deleted successfully.");
         } catch (error) {

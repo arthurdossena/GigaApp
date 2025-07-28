@@ -70,8 +70,6 @@ export default function SignUp() {
 
         } catch (error) {
             console.log(error);
-        } finally {
-            setLoading(false);
         }
     }
 
@@ -89,6 +87,7 @@ export default function SignUp() {
                             onChangeText={setName}
                             value={name}
                             title="Name"
+                            maxLength={35}
                         />
                         <Input
                             onChangeText={setEmail}
